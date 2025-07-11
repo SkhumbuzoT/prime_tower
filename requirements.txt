@@ -7,6 +7,7 @@ scipy==1.10.1
 matplotlib==3.7.1
 plotly==5.14.1
 plotly-express==0.4.1
+Pillow==9.5.0  # Downgraded to work with Streamlit
 
 # Google Services
 gspread==5.11.0
@@ -23,5 +24,4 @@ streamlit-option-menu==0.3.6
 
 # Utilities
 python-dateutil==2.8.2
-Pillow==10.0.0
 requests==2.31.0

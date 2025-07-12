@@ -383,7 +383,7 @@ with st.sidebar:
                 st.session_state.logged_in = True
                 st.session_state.username = username_input
                 st.success(f"Welcome, {username_input}!")
-                st.experimental_rerun()  # Refresh to show authenticated content
+                st.rerun()  # Refresh to show authenticated content
             else:
                 st.error("Invalid credentials")
         st.stop()  # Stop execution if not logged in
@@ -956,7 +956,7 @@ elif selected == "Maintenance":
                 st.success("✅ No licenses or insurance expiring soon.")
             else:
                 for col in ["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]:
-                    expiring_df[col] = pd.to_datetime(expiring_df[col], errors='coerce')
+                   expiring_df.loc[:, col] = pd.to_datetime(expiring_df[col], errors='coerce')
                 
                 today = pd.Timestamp.today()
                 days_matrix = expiring_df[["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]].apply(

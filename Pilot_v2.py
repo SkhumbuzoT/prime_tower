@@ -323,50 +323,88 @@ month_dict = dict(zip(month_mapping["Month_Display"], month_mapping["Year-Month"
 available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m])
 
 # --- USER AUTHENTICATION ---
+import os
+from pathlib import Path
+
+# Define usernames and passwords (consider using environment variables or secrets for production)
 usernames = {"admin": "1234", "user1": "pass123"}
 
+# Initialize session state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
     st.session_state.username = ""
 
 with st.sidebar:
-    # Load and encode image
-    def get_base64_image(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
+    # Improved image loading function with error handling
+    def get_base64_image(image_name):
+        try:
+            # Try multiple possible locations for the image
+            script_dir = Path(__file__).parent
+            possible_paths = [
+                script_dir / image_name,                # Same directory as script
+                script_dir / "prime_tower" / image_name, # Subdirectory
+                script_dir.parent / image_name          # Parent directory
+            ]
+            
+            for path in possible_paths:
+                if path.exists():
+                    with open(path, "rb") as img_file:
+                        return base64.b64encode(img_file.read()).decode()
+            
+            # If image not found, use a placeholder and show error
+            st.error("Logo image not found - using placeholder")
+            # Create a simple placeholder image
+            from PIL import Image, ImageDraw
+            img = Image.new('RGB', (100, 100), color=SECONDARY_NAVY)
+            d = ImageDraw.Draw(img)
+            d.text((10,10), "LOGO", fill=ACCENT_TEAL)
+            buffered = BytesIO()
+            img.save(buffered, format="JPEG")
+            return base64.b64encode(buffered.getvalue()).decode()
+            
+        except Exception as e:
+            st.error(f"Error loading image: {e}")
+            return ""
     
+    # Login form if not authenticated
     if not st.session_state.logged_in:
         st.markdown(f"""
             <div style='text-align:center; margin-bottom:20px;'>
                 <h3 style='color:{ACCENT_TEAL};'>🔐 Prime Chain Login</h3>
             </div>
         """, unsafe_allow_html=True)
+        
         username_input = st.text_input("Username")
         password_input = st.text_input("Password", type="password")
+        
         if st.button("Login", type="primary"):
             if username_input in usernames and usernames[username_input] == password_input:
                 st.session_state.logged_in = True
                 st.session_state.username = username_input
                 st.success(f"Welcome, {username_input}!")
+                st.experimental_rerun()  # Refresh to show authenticated content
             else:
                 st.error("Invalid credentials")
-        st.stop()
-    else:
-        img_base64 = get_base64_image("prime_tower/prime_logo.png")
+        st.stop()  # Stop execution if not logged in
     
+    # Display user profile after login
+    else:
+        # Try loading just the filename first (it will check multiple locations)
+        img_base64 = get_base64_image("prime_logo.png")
+        
         st.markdown(
-                f"""
-                <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; text-align:center; border:1px solid {ACCENT_TEAL};'>
-                    <img src='data:image/jpeg;base64,{img_base64}' style='width:60px; height:60px; border-radius:50%; margin-bottom:10px; border:2px solid {ACCENT_GOLD};'>
-                    <div style='color:{WHITE}; font-size:14px;'>
-                        <strong>User:</strong> {st.session_state.username}<br>
-                        <strong>Status:</strong> <span style='color:{ACCENT_TEAL};'>Active</span>
-                    </div>
+            f"""
+            <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; text-align:center; border:1px solid {ACCENT_TEAL};'>
+                <img src='data:image/jpeg;base64,{img_base64}' style='width:60px; height:60px; border-radius:50%; margin-bottom:10px; border:2px solid {ACCENT_GOLD};'>
+                <div style='color:{WHITE}; font-size:14px;'>
+                    <strong>User:</strong> {st.session_state.username}<br>
+                    <strong>Status:</strong> <span style='color:{ACCENT_TEAL};'>Active</span>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
             
         # Navigation menu
         selected = option_menu(

@@ -80,7 +80,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("My App with Custom Favicon 🚛")
+#st.title("My App with Custom Favicon 🚛")
 
 # CUSTOM STYLES
 st.markdown(f"""

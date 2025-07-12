@@ -76,7 +76,7 @@ def get_resized_image(image_path):
 # PAGE CONFIG
 st.set_page_config(
     page_title="PrimeTower Fleet Dashboard",
-    page_icon="assets/favicon.png",  # Path to local file
+    page_icon="prime_tower/prime_logo.png",  # Path to local file
     layout="wide"
 )
 
@@ -373,7 +373,7 @@ with st.sidebar:
     if not st.session_state.logged_in:
         st.markdown(f"""
             <div style='text-align:center; margin-bottom:20px;'>
-                <h3 style='color:{ACCENT_TEAL};'>🔐 Prime Chain Login</h3>
+                <h3 style='color:{ACCENT_TEAL};'>🔐 Prime Tower Login</h3>
             </div>
         """, unsafe_allow_html=True)
         
@@ -411,7 +411,7 @@ with st.sidebar:
         # Navigation menu
         selected = option_menu(
         menu_title=None,
-        options=["Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Strategic Insights"],
+        options=["Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
         icons=["cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
         menu_icon="cast",
         default_index=0,
@@ -428,15 +428,7 @@ with st.sidebar:
                     "nav-link-selected": {"background-color": ACCENT_TEAL},
                 }
             )
-            
-        # Filters Section with aligned text
-        #st.markdown(f"""
-        #        <div style='margin: 15px 0; padding: 0;'>
-       #             <div style='font-family: "Poppins", sans-serif; font-size: 16px; color: {WHITE}; 
-       #             margin-left: 5px; margin-bottom: 8px;'>FILTER CONTROLS</div>
-       #             <div style='background-color: {SECONDARY_NAVY}; padding: 12px; 
-       #             border-radius: 8px; border: 1px solid {ACCENT_TEAL};'>
-        #    """, unsafe_allow_html=True)
+        
             
         # Date Filter
         selected_month_display = st.selectbox(
@@ -802,8 +794,7 @@ elif selected == "Fuel Efficiency":
     
     # Calculate deltas
     prev_fuel_df = prev_month_filtered[prev_month_filtered["Doc Type"] == "Fuel"] if not prev_month_filtered.empty else pd.DataFrame()
-    #prev_efficiency = prev_fuel_df["Distance "].sum() / prev_fuel_df["Ton Reg"].sum() if not prev_fuel_df.empty else 0
-    #efficiency_delta = ((avg_efficiency - prev_efficiency) / prev_efficiency * 100) if prev_efficiency != 0 else 0
+   
     
     col1, col2, col3 = st.columns(3)
     with col1:

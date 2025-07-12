@@ -75,10 +75,12 @@ def get_resized_image(image_path):
 
 # PAGE CONFIG
 st.set_page_config(
-    layout="wide", 
-    page_title="Prime Chain Solutions - Control Tower",
-    page_icon="📊"
+    page_title="PrimeTower Fleet Dashboard",
+    page_icon="assets/favicon.png",  # Path to local file
+    layout="wide"
 )
+
+st.title("My App with Custom Favicon 🚛")
 
 # CUSTOM STYLES
 st.markdown(f"""

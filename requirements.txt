@@ -5,6 +5,7 @@ numpy>=1.21.0
 scipy>=1.10.0
 matplotlib>=3.8.0
 plotly>=5.0.0
+statsmodels>=0.14.0
 
 # Google Sheets and authentication
 gspread>=5.0.0

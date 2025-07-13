@@ -1076,10 +1076,18 @@ elif selected == "Insights":
 
     # Top Performers Section
     with st.container():
-        #st.markdown("### 🏆 Top Performers")
+        st.markdown("""
+            <div style='text-align: center; margin-bottom: 20px;'>
+                <h2 style='color: {ACCENT_GOLD}; border-bottom: 2px solid {ACCENT_TEAL}; 
+                    display: inline-block; padding-bottom: 5px;'>🏆 Performance Dashboard</h2>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Top Performers Row
+        st.markdown("### 🌟 Top Performers")
         col1, col2 = st.columns(2)
         
-        # Most Profitable Truck
+        # Most Profitable Truck Card
         with col1:
             try:
                 if not cost_df.empty:
@@ -1093,10 +1101,22 @@ elif selected == "Insights":
                     if not profitable_truck.empty:
                         truck = profitable_truck.iloc[0]
                         st.markdown(f"""
-                            <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; border:1px solid {ACCENT_TEAL};'>
-                                <h4 style='color:{ACCENT_GOLD}; margin-top:0;'>🚛 Most Profitable Truck</h4>
-                                <p style='font-size:18px;'><strong>{truck['TruckID']}</strong> - {truck['Driver Name']}</p>
-                                <p style='font-size:24px; color:{ACCENT_TEAL};'>R{truck['Profit (R)']:,.2f}</p>
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid {ACCENT_TEAL};
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: {ACCENT_GOLD}; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>🚛</span>
+                                    </div>
+                                    <h4 style='color: {ACCENT_GOLD}; margin: 0;'>Most Profitable Truck</h4>
+                                </div>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Truck ID</p>
+                                <p style='font-size: 20px; margin-top: 0; margin-bottom: 15px;'><strong>{truck['TruckID']}</strong></p>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Driver</p>
+                                <p style='font-size: 18px; margin-top: 0; margin-bottom: 20px;'>{truck['Driver Name']}</p>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Total Profit</p>
+                                <p style='font-size: 28px; color: {ACCENT_TEAL}; margin: 0; font-weight: bold;'>R{truck['Profit (R)']:,.2f}</p>
                             </div>
                         """, unsafe_allow_html=True)
                 else:
@@ -1104,7 +1124,7 @@ elif selected == "Insights":
             except Exception as e:
                 st.error(f"Error calculating profitable truck: {str(e)}")
         
-        # Most Efficient Route
+        # Most Efficient Route Card
         with col2:
             try:
                 if not cost_df.empty:
@@ -1118,23 +1138,33 @@ elif selected == "Insights":
                     if not efficient_route.empty:
                         route = efficient_route.iloc[0]
                         st.markdown(f"""
-                            <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; border:1px solid {ACCENT_TEAL};'>
-                                <h4 style='color:{ACCENT_GOLD}; margin-top:0;'>🛣️ Most Profitable Route</h4>
-                                <p style='font-size:18px;'><strong>{route['Route Code']}</strong></p>
-                                <p style='font-size:24px; color:{ACCENT_TEAL};'>R{route['Profit (R)']:,.2f} avg profit</p>
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid {ACCENT_TEAL};
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: {ACCENT_GOLD}; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>🛣️</span>
+                                    </div>
+                                    <h4 style='color: {ACCENT_GOLD}; margin: 0;'>Most Profitable Route</h4>
+                                </div>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Route Code</p>
+                                <p style='font-size: 20px; margin-top: 0; margin-bottom: 20px;'><strong>{route['Route Code']}</strong></p>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Average Profit</p>
+                                <p style='font-size: 28px; color: {ACCENT_TEAL}; margin: 0; font-weight: bold;'>R{route['Profit (R)']:,.2f}</p>
                             </div>
                         """, unsafe_allow_html=True)
                 else:
                     st.warning("No route data available for analysis")
             except Exception as e:
                 st.error(f"Error calculating efficient route: {str(e)}")
-
+    
     # Optimization Opportunities Section
     with st.container():
-        #st.markdown("### ⚡ Optimization Opportunities")
+        st.markdown("### ⚡ Optimization Opportunities")
         col1, col2 = st.columns(2)
         
-        # Loss-Making Routes
+        # Least Fuel-Efficient Trucks Card
         with col1:
             try:
                 if not fuel_df.empty:
@@ -1147,19 +1177,43 @@ elif selected == "Insights":
                     )
                     if not inefficient_trucks.empty:
                         st.markdown(f"""
-                            <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; border:1px solid #d32f2f;'>
-                                <h4 style='color:#d32f2f; margin-top:0;'>⛽ Least Fuel-Efficient Trucks</h4>
-                                <ul style='padding-left:20px;'>
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid #d32f2f;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: #d32f2f; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>⛽</span>
+                                    </div>
+                                    <h4 style='color: #d32f2f; margin: 0;'>Least Fuel-Efficient Trucks</h4>
+                                </div>
+                                <div style='margin-top: 20px;'>
+                                    <table style='width: 100%; border-collapse: collapse;'>
+                                        <thead>
+                                            <tr style='border-bottom: 1px solid #444;'>
+                                                <th style='text-align: left; padding: 8px 0; color: #e0e0e0;'>Truck</th>
+                                                <th style='text-align: left; padding: 8px 0; color: #e0e0e0;'>Driver</th>
+                                                <th style='text-align: right; padding: 8px 0; color: #e0e0e0;'>Efficiency</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                         """, unsafe_allow_html=True)
                         
                         for _, row in inefficient_trucks.iterrows():
                             st.markdown(f"""
-                                <li style='margin-bottom:8px;'>
-                                    <strong>{row['TruckID']}</strong> ({row['Driver Name']}): {row['Fuel Efficiency (km/L)']:.2f} km/L
-                                </li>
+                                <tr style='border-bottom: 1px solid #333;'>
+                                    <td style='padding: 8px 0;'><strong>{row['TruckID']}</strong></td>
+                                    <td style='padding: 8px 0;'>{row['Driver Name']}</td>
+                                    <td style='padding: 8px 0; text-align: right; color: #ff5252;'>{row['Fuel Efficiency (km/L)']:.2f} km/L</td>
+                                </tr>
                             """, unsafe_allow_html=True)
                         
-                        st.markdown("</ul></div>", unsafe_allow_html=True)
+                        st.markdown("""
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
                     else:
                         st.success("All trucks meet fuel efficiency standards")
                 else:
@@ -1168,7 +1222,7 @@ elif selected == "Insights":
                 st.error(f"Error calculating inefficient trucks: {str(e)}")
             
         
-        # Inefficient Trucks
+        # Loss-Making Routes Card
         with col2:
             try:
                 if not cost_df.empty:
@@ -1181,19 +1235,41 @@ elif selected == "Insights":
                     )
                     if not loss_routes.empty:
                         st.markdown(f"""
-                            <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; border:1px solid #d32f2f;'>
-                                <h4 style='color:#d32f2f; margin-top:0;'>🔴 Top Loss-Making Routes</h4>
-                                <ul style='padding-left:20px;'>
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid #d32f2f;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: #d32f2f; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>🔴</span>
+                                    </div>
+                                    <h4 style='color: #d32f2f; margin: 0;'>Top Loss-Making Routes</h4>
+                                </div>
+                                <div style='margin-top: 20px;'>
+                                    <table style='width: 100%; border-collapse: collapse;'>
+                                        <thead>
+                                            <tr style='border-bottom: 1px solid #444;'>
+                                                <th style='text-align: left; padding: 8px 0; color: #e0e0e0;'>Route Code</th>
+                                                <th style='text-align: right; padding: 8px 0; color: #e0e0e0;'>Total Loss</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                         """, unsafe_allow_html=True)
                         
                         for _, row in loss_routes.iterrows():
                             st.markdown(f"""
-                                <li style='margin-bottom:8px;'>
-                                    <strong>{row['Route Code']}</strong>: R{row['Profit (R)']:,.2f}
-                                </li>
+                                <tr style='border-bottom: 1px solid #333;'>
+                                    <td style='padding: 8px 0;'><strong>{row['Route Code']}</strong></td>
+                                    <td style='padding: 8px 0; text-align: right; color: #ff5252;'>R{abs(row['Profit (R)']):,.2f}</td>
+                                </tr>
                             """, unsafe_allow_html=True)
                         
-                        st.markdown("</ul></div>", unsafe_allow_html=True)
+                        st.markdown("""
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
                     else:
                         st.success("No loss-making routes found")
                 else:

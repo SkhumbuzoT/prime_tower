@@ -909,6 +909,7 @@ elif selected == "Maintenance":
         maint_df[f"{label} Expiring"] = (
             maint_df[f"{label} Days Left"].notna() & 
             (maint_df[f"{label} Days Left"] <= 30)
+        )
     
     # KPIs
     overdue_services = maint_df["Service Due"].sum()

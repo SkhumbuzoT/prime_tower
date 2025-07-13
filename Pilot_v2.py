@@ -28,11 +28,11 @@ if "first_visit" not in st.session_state:
     st.session_state.use_demo = False
 
 # Navigation setup - replace your existing navigation code
-page = st.sidebar.radio(
-    "Navigation", 
-    ["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
-    index=0 if st.session_state.first_visit else 1  # Start on Home for first visit
-)
+#page = st.sidebar.radio(
+#    "Navigation", 
+#    ["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
+#    index=0 if st.session_state.first_visit else 1  # Start on Home for first visit
+#)
 
 # Home Page Content
 if page == "Home":
@@ -521,8 +521,8 @@ with st.sidebar:
         # Navigation menu
         selected = option_menu(
         menu_title=None,
-        options=["Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
-        icons=["cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
+        options=["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
+        icons=["home", "cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
         menu_icon="cast",
         default_index=0,
         styles={

@@ -27,6 +27,114 @@ if "first_visit" not in st.session_state:
     st.session_state.first_visit = True
     st.session_state.use_demo = False
 
+        # Navigation menu
+selected = option_menu(
+    menu_title=None,
+    options=["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
+    icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
+    menu_icon="cast",
+    default_index=0 if st.session_state.first_visit else 1,  # Start on Home for first visit
+    styles={
+                "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
+                "icon": {"color": ACCENT_GOLD, "font-size": "20px"},
+                "nav-link": {
+                    "color": WHITE,
+                    "font-size": "16px",
+                    "text-align": "left",
+                    "margin": "5px",
+                    "--hover-color": ACCENT_TEAL,
+                },
+                "nav-link-selected": {"background-color": ACCENT_TEAL},
+            }
+        )
+        
+        # Home Page Content
+if selected == "Home":
+st.session_state.first_visit = False  # Mark as visited
+            
+            # Logo and Header
+col1, col2 = st.columns([1, 3])
+with col1:
+        try:
+            st.image("prime_tower/prime_logo.png", width=150)  # Adjust path as needed
+        except:
+            st.warning("Logo image not found")
+            
+        with col2:
+            st.title("🚀 Welcome to Prime Tower")
+            st.markdown("""
+                    **Prime Tower** is your real-time dashboard to track trips, costs, claims, and profits — 
+                    all from your Google Sheet or our demo data.
+                """)
+            
+            # Main Content Sections
+        st.markdown("""
+        ## 👤 Who is this for?
+                
+        Prime Tower is designed specifically for:
+        - **Truck Owners** (1–50 trucks)
+        - **Subcontracted Transporters**
+        - **SME Logistics Managers**
+        - **Fleet Operators** who need better visibility
+                
+        """)
+            
+        st.markdown("""
+        ## 🛠️ How to Get Started
+                
+        Choose one of these options to begin:
+        """)
+            
+        # Get Started Options
+        col1, col2, col3 = st.columns(3)
+            
+        with col1:
+            st.markdown("""
+                    ### 1. Try Demo Data
+                    Explore the app with sample data to see how it works
+                """)
+            if st.button("🧪 Try Demo Data", use_container_width=True):
+                st.session_state.use_demo = True
+                st.success("Demo mode enabled! Switch to other tabs to explore.")
+            
+        with col2:
+            st.markdown("""
+                    ### 2. Connect Your Sheet
+                    Use your own data with our Google Sheet template
+                """)
+            if st.button("📊 Connect Google Sheet", use_container_width=True):
+                st.info("Coming soon! Currently using our demo data.")
+            
+        with col3:
+            st.markdown("""
+                    ### 3. View Template
+                    See how to structure your data for Prime Tower
+                """)
+            if st.button("📄 View Sheet Template", use_container_width=True):
+                st.markdown("""
+                        [👉 Open Google Sheet Template](#)
+                        (Note: Template link coming soon)
+                    """)
+            
+        # Key Features Section
+        st.markdown("""
+                ## 🔑 Key Features
+                
+                | Feature | Description |
+                |---------|-------------|
+                | **Real-time Tracking** | Monitor trips, costs, and profits as they happen |
+                | **Fleet Analytics** | Compare performance across trucks and routes |
+                | **Fuel Efficiency** | Identify optimization opportunities |
+                | **Maintenance Alerts** | Never miss a service or license renewal |
+                | **Profitability Insights** | Spot your best and worst performing routes |
+            """)
+            
+        # Footer with next steps
+        st.markdown("""
+                ---
+                Ready to get started? Select an option above or use the navigation menu to explore.
+            """)
+
 # BRAND COLORS
 PRIMARY_BG = "#000000"  # Jet Black
 ACCENT_TEAL = "#008080"  # Teal
@@ -424,113 +532,6 @@ with st.sidebar:
             unsafe_allow_html=True
         )
             
-        # Navigation menu
-        selected = option_menu(
-            menu_title=None,
-            options=["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
-            icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
-            menu_icon="cast",
-            default_index=0 if st.session_state.first_visit else 1,  # Start on Home for first visit
-            styles={
-                "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
-                "icon": {"color": ACCENT_GOLD, "font-size": "20px"},
-                "nav-link": {
-                    "color": WHITE,
-                    "font-size": "16px",
-                    "text-align": "left",
-                    "margin": "5px",
-                    "--hover-color": ACCENT_TEAL,
-                },
-                "nav-link-selected": {"background-color": ACCENT_TEAL},
-            }
-        )
-        
-        # Home Page Content
-        if selected == "Home":
-            st.session_state.first_visit = False  # Mark as visited
-            
-            # Logo and Header
-            col1, col2 = st.columns([1, 3])
-            with col1:
-                try:
-                    st.image("prime_tower/prime_logo.png", width=150)  # Adjust path as needed
-                except:
-                    st.warning("Logo image not found")
-            
-            with col2:
-                st.title("🚀 Welcome to Prime Tower")
-                st.markdown("""
-                    **Prime Tower** is your real-time dashboard to track trips, costs, claims, and profits — 
-                    all from your Google Sheet or our demo data.
-                """)
-            
-            # Main Content Sections
-            st.markdown("""
-                ## 👤 Who is this for?
-                
-                Prime Tower is designed specifically for:
-                - **Truck Owners** (1–50 trucks)
-                - **Subcontracted Transporters**
-                - **SME Logistics Managers**
-                - **Fleet Operators** who need better visibility
-                
-                """)
-            
-            st.markdown("""
-                ## 🛠️ How to Get Started
-                
-                Choose one of these options to begin:
-            """)
-            
-            # Get Started Options
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                st.markdown("""
-                    ### 1. Try Demo Data
-                    Explore the app with sample data to see how it works
-                """)
-                if st.button("🧪 Try Demo Data", use_container_width=True):
-                    st.session_state.use_demo = True
-                    st.success("Demo mode enabled! Switch to other tabs to explore.")
-            
-            with col2:
-                st.markdown("""
-                    ### 2. Connect Your Sheet
-                    Use your own data with our Google Sheet template
-                """)
-                if st.button("📊 Connect Google Sheet", use_container_width=True):
-                    st.info("Coming soon! Currently using our demo data.")
-            
-            with col3:
-                st.markdown("""
-                    ### 3. View Template
-                    See how to structure your data for Prime Tower
-                """)
-                if st.button("📄 View Sheet Template", use_container_width=True):
-                    st.markdown("""
-                        [👉 Open Google Sheet Template](#)
-                        (Note: Template link coming soon)
-                    """)
-            
-            # Key Features Section
-            st.markdown("""
-                ## 🔑 Key Features
-                
-                | Feature | Description |
-                |---------|-------------|
-                | **Real-time Tracking** | Monitor trips, costs, and profits as they happen |
-                | **Fleet Analytics** | Compare performance across trucks and routes |
-                | **Fuel Efficiency** | Identify optimization opportunities |
-                | **Maintenance Alerts** | Never miss a service or license renewal |
-                | **Profitability Insights** | Spot your best and worst performing routes |
-            """)
-            
-            # Footer with next steps
-            st.markdown("""
-                ---
-                Ready to get started? Select an option above or use the navigation menu to explore.
-            """)
         
             
         # Date Filter

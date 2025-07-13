@@ -674,7 +674,7 @@ if selected == "Cost & Profitability":
         st.success("✅ All trips were profitable in the selected period.")
 
 elif selected == "Daily Operations":
-    st.markdown("## 🚛 Daily Operations Tracker")
+    #st.markdown("## 🚛 Daily Operations Tracker")
     st.markdown("Monitor daily truck activities and performance metrics")
     
     # Prepare operations data
@@ -998,7 +998,7 @@ elif selected == "Maintenance":
     else:
         st.success("✅ All trucks are within service limits")
 
-elif selected == "Strategic Insights":
+elif selected == "Insights":
     #st.markdown("## 💡 Strategic Insights")
     st.markdown("Actionable recommendations to optimize fleet performance")
     

@@ -64,17 +64,18 @@ if selected == "Home":
     # Logo and Header
     col1, col2 = st.columns([1, 3])
     with col1:
-        try:
-            st.image("prime_tower/prime_logo.png", width=150)  # Adjust path as needed
-        except:
-            st.warning("Logo image not found")
-    
-    with col2:
         st.title("🚀 Welcome to Prime Tower")
         st.markdown("""
             **Prime Tower** is your real-time dashboard to track trips, costs, claims, and profits — 
             all from your Google Sheet or our demo data.
         """)
+    with col2:
+        try:
+            st.image("prime_tower/prime_logo.png", width=150)  # Adjust path as needed
+        except:
+            st.warning("Logo image not found")
+    
+
     
     # Main Content Sections
     st.markdown("""

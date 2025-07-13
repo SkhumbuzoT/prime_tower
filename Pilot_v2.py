@@ -22,6 +22,14 @@ from openai import OpenAI
 import google.generativeai as genai
 
 
+# BRAND COLORS
+PRIMARY_BG = "#000000"  # Jet Black
+ACCENT_TEAL = "#008080"  # Teal
+ACCENT_GOLD = "#D4AF37"  # Gold
+SECONDARY_NAVY = "#0A1F44"  # Navy Blue
+WHITE = "#FFFFFF"  # White
+LIGHT_GRAY = "#F8F9FA"  # Light Gray for backgrounds
+
 # --- WELCOME PAGE IMPLEMENTATION ---
 if "first_visit" not in st.session_state:
     st.session_state.first_visit = True
@@ -134,13 +142,6 @@ if selected == "Home":
         Ready to get started? Select an option above or use the navigation menu to explore.
     """)
 
-# BRAND COLORS
-PRIMARY_BG = "#000000"  # Jet Black
-ACCENT_TEAL = "#008080"  # Teal
-ACCENT_GOLD = "#D4AF37"  # Gold
-SECONDARY_NAVY = "#0A1F44"  # Navy Blue
-WHITE = "#FFFFFF"  # White
-LIGHT_GRAY = "#F8F9FA"  # Light Gray for backgrounds
 
 # COLOR MAP FOR CHARTS
 COLOR_MAP = {

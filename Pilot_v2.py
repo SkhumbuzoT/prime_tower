@@ -36,25 +36,26 @@ if "first_visit" not in st.session_state:
     st.session_state.use_demo = False
 
 # Navigation menu
-selected = option_menu(
-    menu_title=None,
-    options=["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
-    icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
-    menu_icon="cast",
-    default_index=0 if st.session_state.first_visit else 1,  # Start on Home for first visit
-    styles={
-        "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
-        "icon": {"color": ACCENT_GOLD, "font-size": "20px"},
-        "nav-link": {
-            "color": WHITE,
-            "font-size": "16px",
-            "text-align": "left",
-            "margin": "5px",
-            "--hover-color": ACCENT_TEAL,
-        },
-        "nav-link-selected": {"background-color": ACCENT_TEAL},
-    }
-)
+with st.sidebar:
+    selected = option_menu(
+        menu_title=None,
+        options=["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
+        icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
+        menu_icon="cast",
+        default_index=0 if st.session_state.first_visit else 1,  # Start on Home for first visit
+        styles={
+            "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
+            "icon": {"color": ACCENT_GOLD, "font-size": "20px"},
+            "nav-link": {
+                "color": WHITE,
+                "font-size": "16px",
+                "text-align": "left",
+                "margin": "5px",
+                "--hover-color": ACCENT_TEAL,
+            },
+            "nav-link-selected": {"background-color": ACCENT_TEAL},
+        }
+    )
         
 # Home Page Content
 if selected == "Home":

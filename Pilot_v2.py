@@ -889,8 +889,9 @@ elif selected == "Maintenance":
     maint_df["KM Since Service"] = maint_df["Current Mileage"] - maint_df["Last Service Mileage"]
     maint_df["Service Due"] = maint_df["KM Since Service"] > 10000
     
-    # Date-based expiry checks
-    today = pd.to_datetime("today")
+   # Date-based expiry checks
+    today = pd.to_datetime("today").normalize()  # Ensure we're working with dates only
+    
     expiry_fields = {
         "Vehicle License Expiry": "License Expiry",
         "Driver License Expiry": "Driver License",
@@ -898,8 +899,16 @@ elif selected == "Maintenance":
     }
     
     for col, label in expiry_fields.items():
-        maint_df[f"{label} Days Left"] = (pd.to_datetime(maint_df[col]) - today).dt.days
-        maint_df[f"{label} Expiring"] = maint_df[f"{label} Days Left"] <= 30
+        # First ensure the column is in datetime format
+        maint_df[col] = pd.to_datetime(maint_df[col], errors='coerce')
+        
+        # Calculate days left (returns NaN for invalid dates)
+        maint_df[f"{label} Days Left"] = (maint_df[col] - today).dt.days
+        
+        # Mark as expiring if <= 30 days and not NaN
+        maint_df[f"{label} Expiring"] = (
+            maint_df[f"{label} Days Left"].notna() & 
+            (maint_df[f"{label} Days Left"] <= 30)
     
     # KPIs
     overdue_services = maint_df["Service Due"].sum()

@@ -21,7 +21,6 @@ from PIL import Image
 from openai import OpenAI
 import google.generativeai as genai
 
-
 # BRAND COLORS
 PRIMARY_BG = "#000000"  # Jet Black
 ACCENT_TEAL = "#008080"  # Teal
@@ -30,19 +29,104 @@ SECONDARY_NAVY = "#0A1F44"  # Navy Blue
 WHITE = "#FFFFFF"  # White
 LIGHT_GRAY = "#F8F9FA"  # Light Gray for backgrounds
 
+# PAGE CONFIG
+st.set_page_config(
+    page_title="PrimeTower Fleet Dashboard",
+    page_icon="prime_tower/prime_logo.png",
+    layout="wide"
+)
+
+# CUSTOM STYLES
+st.markdown(f"""
+    <style>
+    /* Your existing styles here */
+    .login-container {{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh;
+    }}
+    .login-box {{
+        background-color: {SECONDARY_NAVY};
+        padding: 2rem;
+        border-radius: 10px;
+        border: 1px solid {ACCENT_TEAL};
+        width: 400px;
+        text-align: center;
+    }}
+    </style>
+""", unsafe_allow_html=True)
+
+# --- AUTHENTICATION ---
+def show_login():
+    """Display centered login form"""
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        with st.container():
+            st.markdown(f"""
+                <div class="login-box">
+                    <h2 style='color:{ACCENT_TEAL}; margin-bottom: 1.5rem;'>🔐 Prime Tower Login</h2>
+            """, unsafe_allow_html=True)
+            
+            username = st.text_input("Username", key="login_username")
+            password = st.text_input("Password", type="password", key="login_password")
+            
+            if st.button("Login", type="primary", use_container_width=True):
+                authenticate(username, password)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+
+def authenticate(username, password):
+    """Authenticate user"""
+    users = {"admin": "1234", "user1": "pass123"}  # In production, use proper auth
+    
+    if username in users and users[username] == password:
+        st.session_state.logged_in = True
+        st.session_state.username = username
+        st.session_state.first_visit = True
+        st.session_state.use_demo = False
+        st.rerun()
+    else:
+        st.error("Invalid credentials")
+
+# Initialize session state
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# --- MAIN APP FLOW ---
+if not st.session_state.logged_in:
+    show_login()
+    st.stop()  # Stop execution if not logged in
+
+# Only show the rest if logged in
 # --- WELCOME PAGE IMPLEMENTATION ---
 if "first_visit" not in st.session_state:
     st.session_state.first_visit = True
     st.session_state.use_demo = False
 
-# Navigation menu
+# Navigation menu - in sidebar
 with st.sidebar:
+    # User profile
+    try:
+        st.image("prime_tower/prime_logo.png", width=100)
+    except:
+        st.warning("Logo image not found")
+    
+    st.markdown(f"""
+        <div style='text-align:center; margin-bottom:1rem;'>
+            <h4 style='color:{ACCENT_TEAL};'>Welcome, {st.session_state.username}</h4>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Navigation menu
     selected = option_menu(
         menu_title=None,
-        options=["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
-        icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "lightbulb"],
+        options=["Home", "Cost & Profitability", "Daily Operations", 
+                "Fuel Efficiency", "Maintenance", "Insights"],
+        icons=["house", "cash-stack", "speedometer", 
+              "fuel-pump", "tools", "lightbulb"],
         menu_icon="cast",
-        default_index=0 if st.session_state.first_visit else 1,  # Start on Home for first visit
+        default_index=0 if st.session_state.first_visit else 1,
         styles={
             "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
             "icon": {"color": ACCENT_GOLD, "font-size": "20px"},
@@ -56,10 +140,15 @@ with st.sidebar:
             "nav-link-selected": {"background-color": ACCENT_TEAL},
         }
     )
-        
-# Home Page Content
+    
+    # Logout button
+    if st.button("Logout", type="primary", use_container_width=True):
+        st.session_state.logged_in = False
+        st.rerun()
+
+# --- MAIN CONTENT AREA ---
 if selected == "Home":
-    st.session_state.first_visit = False  # Mark as visited
+    st.session_state.first_visit = False
     
     # Logo and Header
     col1, col2 = st.columns([3, 1])
@@ -71,11 +160,9 @@ if selected == "Home":
         """)
     with col2:
         try:
-            st.image("prime_tower/prime_logo.png", width=150)  # Adjust path as needed
+            st.image("prime_tower/prime_logo.png", width=150)
         except:
             st.warning("Logo image not found")
-    
-
     
     # Main Content Sections
     st.markdown("""

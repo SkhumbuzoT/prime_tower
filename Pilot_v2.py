@@ -1131,44 +1131,11 @@ elif selected == "Insights":
 
     # Optimization Opportunities Section
     with st.container():
-        st.markdown("### ⚡ Optimization Opportunities")
+        #st.markdown("### ⚡ Optimization Opportunities")
         col1, col2 = st.columns(2)
         
         # Loss-Making Routes
         with col1:
-            try:
-                if not cost_df.empty:
-                    loss_routes = (
-                        cost_df.groupby("Route Code")["Profit (R)"]
-                        .sum()
-                        .astype(float)
-                        .nsmallest(3)
-                        .reset_index()
-                    )
-                    if not loss_routes.empty:
-                        st.markdown(f"""
-                            <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; border:1px solid #d32f2f;'>
-                                <h4 style='color:#d32f2f; margin-top:0;'>🔴 Top Loss-Making Routes</h4>
-                                <ul style='padding-left:20px;'>
-                        """, unsafe_allow_html=True)
-                        
-                        for _, row in loss_routes.iterrows():
-                            st.markdown(f"""
-                                <li style='margin-bottom:8px;'>
-                                    <strong>{row['Route Code']}</strong>: R{row['Profit (R)']:,.2f}
-                                </li>
-                            """, unsafe_allow_html=True)
-                        
-                        st.markdown("</ul></div>", unsafe_allow_html=True)
-                    else:
-                        st.success("No loss-making routes found")
-                else:
-                    st.warning("No route data available for analysis")
-            except Exception as e:
-                st.error(f"Error calculating loss routes: {str(e)}")
-        
-        # Inefficient Trucks
-        with col2:
             try:
                 if not fuel_df.empty:
                     inefficient_trucks = (
@@ -1199,6 +1166,40 @@ elif selected == "Insights":
                     st.warning("No fuel efficiency data available")
             except Exception as e:
                 st.error(f"Error calculating inefficient trucks: {str(e)}")
+            
+        
+        # Inefficient Trucks
+        with col2:
+            try:
+                if not cost_df.empty:
+                    loss_routes = (
+                        cost_df.groupby("Route Code")["Profit (R)"]
+                        .sum()
+                        .astype(float)
+                        .nsmallest(3)
+                        .reset_index()
+                    )
+                    if not loss_routes.empty:
+                        st.markdown(f"""
+                            <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; border:1px solid #d32f2f;'>
+                                <h4 style='color:#d32f2f; margin-top:0;'>🔴 Top Loss-Making Routes</h4>
+                                <ul style='padding-left:20px;'>
+                        """, unsafe_allow_html=True)
+                        
+                        for _, row in loss_routes.iterrows():
+                            st.markdown(f"""
+                                <li style='margin-bottom:8px;'>
+                                    <strong>{row['Route Code']}</strong>: R{row['Profit (R)']:,.2f}
+                                </li>
+                            """, unsafe_allow_html=True)
+                        
+                        st.markdown("</ul></div>", unsafe_allow_html=True)
+                    else:
+                        st.success("No loss-making routes found")
+                else:
+                    st.warning("No route data available for analysis")
+            except Exception as e:
+                st.error(f"Error calculating loss routes: {str(e)}")
 
     # Pricing Recommendations Section
     #st.markdown("### 💰 Pricing Recommendations")

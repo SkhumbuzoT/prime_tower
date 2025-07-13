@@ -393,14 +393,16 @@ def kpi_card(title, value, icon=None, emoji=None, delta=None):
 @st.cache_data
 def load_data_from_gsheet():
     if st.session_state.get("use_demo", False):
-        # Load your demo data files here
-        # Example (you'll need to implement this properly):
-        operations = pd.read_csv("data/demo_operations.csv")
-        tracker = pd.read_csv("data/demo_tracker.csv")
-        loi = pd.read_csv("data/demo_loi.csv")
-        truck_pak = pd.read_csv("data/demo_truck_pak.csv")
-        vcs = pd.read_csv("data/demo_vcs.csv")
-        return operations, tracker, loi, truck_pak, vcs
+        # Load demo data
+        @st.cache_data
+        def load_demo_data():
+            operations = pd.read_csv("data/demo_operations.csv")
+            tracker = pd.read_csv("data/demo_tracker.csv")
+            loi = pd.read_csv("data/demo_loi.csv")
+            truck_pak = pd.read_csv("data/demo_truck_pak.csv")
+            vcs = pd.read_csv("data/demo_vcs.csv")
+            return operations, tracker, loi, truck_pak, vcs
+        return load_demo_data()
     else:
         # Original Google Sheets loading code
         scope = [

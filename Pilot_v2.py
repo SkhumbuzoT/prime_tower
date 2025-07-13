@@ -494,7 +494,7 @@ prev_month = (pd.to_datetime(selected_month) - pd.DateOffset(months=1)).strftime
 prev_month_filtered = operations[operations["Year-Month"] == prev_month]
 
 if selected == "Cost & Profitability":
-    st.markdown("## 💵 Cost & Profitability Overview")
+    #st.markdown("## 💵 Cost & Profitability Overview")
     st.markdown("Analyze cost structures and profitability by truck and route")
     
     # Prepare cost data
@@ -557,7 +557,7 @@ if selected == "Cost & Profitability":
     st.caption(f"Data from {cost_df['Date'].min().date()} to {cost_df['Date'].max().date()}")
 
     with st.container():
-        st.markdown("### 🚛 Truck-Level Cost Breakdown")
+        #st.markdown("### 🚛 Truck-Level Cost Breakdown")
         col1, col2 = st.columns(2)
         
         # Cost Breakdown per Truck
@@ -606,7 +606,7 @@ if selected == "Cost & Profitability":
             st.plotly_chart(fig2, use_container_width=True)
     
     with st.container():
-        st.markdown("### 🛣️ Route Profitability Analysis")
+        #st.markdown("### 🛣️ Route Profitability Analysis")
         
         # Route profitability heatmap
         route_profit = cost_df.groupby("Route Code").agg({
@@ -636,7 +636,7 @@ if selected == "Cost & Profitability":
         st.plotly_chart(fig3, use_container_width=True)
     
     # Loss-Making Analysis
-    st.markdown("### 🔍 Loss-Making Analysis")
+    #st.markdown("### 🔍 Loss-Making Analysis")
     loss_df = cost_df[cost_df["Profit (R)"] < 0]
     
     if not loss_df.empty:
@@ -708,7 +708,7 @@ elif selected == "Daily Operations":
     st.caption(f"Data from {ops_df['Date'].min().date()} to {ops_df['Date'].max().date()}")
     
     with st.container():
-        st.markdown("### 📅 Daily Activity Overview")
+        #st.markdown("### 📅 Daily Activity Overview")
         
         # Daily tons moved
         daily_tons = ops_df[ops_df["Doc Type"] == "Offloading"].groupby("Date_only")["Ton Reg"].sum().reset_index()
@@ -762,7 +762,7 @@ elif selected == "Daily Operations":
             st.plotly_chart(fig3, use_container_width=True)
     
     # Idle Trucks Analysis
-    st.markdown("### ⚠️ Idle Truck Analysis")
+    #st.markdown("### ⚠️ Idle Truck Analysis")
     moved_trucks = ops_df["TruckID"].unique()
     all_trucks = truck_pak["TruckID"].unique()
     idle_trucks = list(set(all_trucks) - set(moved_trucks))
@@ -775,7 +775,7 @@ elif selected == "Daily Operations":
         st.success("✅ All trucks were active during the selected period.")
 
 elif selected == "Fuel Efficiency":
-    st.markdown("## ⛽ Fuel Efficiency Analysis")
+    #st.markdown("## ⛽ Fuel Efficiency Analysis")
     st.markdown("Monitor fuel consumption patterns and identify optimization opportunities")
     
     # Prepare fuel data
@@ -810,7 +810,7 @@ elif selected == "Fuel Efficiency":
     st.caption(f"Data from {fuel_df['Date'].min().date()} to {fuel_df['Date'].max().date()}")
     
     with st.container():
-        st.markdown("### 📈 Fuel Efficiency Trends")
+        #st.markdown("### 📈 Fuel Efficiency Trends")
         col1, col2 = st.columns(2)
         
         # Daily fuel efficiency
@@ -848,7 +848,7 @@ elif selected == "Fuel Efficiency":
             st.plotly_chart(fig2, use_container_width=True)
     
     with st.container():
-        st.markdown("### 🔍 Fuel Consumption Analysis")
+        #st.markdown("### 🔍 Fuel Consumption Analysis")
         
         # Fuel vs Distance
         fig3 = px.scatter(
@@ -870,7 +870,7 @@ elif selected == "Fuel Efficiency":
         st.plotly_chart(fig3, use_container_width=True)
     
     # Outliers Analysis
-    st.markdown("### 🚨 Inefficient Trips")
+    #st.markdown("### 🚨 Inefficient Trips")
     inefficient_trips = fuel_df[fuel_df["Fuel Efficiency (km/L)"] < 2.0]
     
     if not inefficient_trips.empty:
@@ -881,7 +881,7 @@ elif selected == "Fuel Efficiency":
         st.success("✅ No extremely inefficient trips found")
 
 elif selected == "Maintenance":
-    st.markdown("## 🔧 Maintenance & Compliance")
+    #st.markdown("## 🔧 Maintenance & Compliance")
     st.markdown("Track vehicle maintenance schedules and compliance status")
     
     # Prepare maintenance data
@@ -918,7 +918,7 @@ elif selected == "Maintenance":
         st.markdown(kpi_card("GIT Insurance Expiring", git_expiring, icon="shield-exclamation"), unsafe_allow_html=True)
     
     with st.container():
-        st.markdown("### 🚛 Maintenance Status by Truck")
+        #st.markdown("### 🚛 Maintenance Status by Truck")
         col1, col2 = st.columns(2)
         
         # KM Since Service
@@ -999,7 +999,7 @@ elif selected == "Maintenance":
         st.success("✅ All trucks are within service limits")
 
 elif selected == "Strategic Insights":
-    st.markdown("## 💡 Strategic Insights")
+    #st.markdown("## 💡 Strategic Insights")
     st.markdown("Actionable recommendations to optimize fleet performance")
     
     # Prepare data for insights with error handling
@@ -1053,7 +1053,7 @@ elif selected == "Strategic Insights":
 
     # Top Performers Section
     with st.container():
-        st.markdown("### 🏆 Top Performers")
+        #st.markdown("### 🏆 Top Performers")
         col1, col2 = st.columns(2)
         
         # Most Profitable Truck
@@ -1178,7 +1178,7 @@ elif selected == "Strategic Insights":
                 st.error(f"Error calculating inefficient trucks: {str(e)}")
 
     # Pricing Recommendations Section
-    st.markdown("### 💰 Pricing Recommendations")
+    #st.markdown("### 💰 Pricing Recommendations")
     try:
         if not cost_df.empty:
             route_analysis = cost_df.groupby("Route Code").agg({

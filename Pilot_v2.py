@@ -393,7 +393,7 @@ with st.sidebar:
     # Display user profile after login
     else:
         # Try loading just the filename first (it will check multiple locations)
-        img_base64 = get_base64_image("prime_logo.png")
+        img_base64 = get_base64_image("PPL.png")
         
         st.markdown(
             f"""

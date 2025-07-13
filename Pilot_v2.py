@@ -22,6 +22,105 @@ from openai import OpenAI
 import google.generativeai as genai
 
 
+# --- WELCOME PAGE IMPLEMENTATION ---
+if "first_visit" not in st.session_state:
+    st.session_state.first_visit = True
+    st.session_state.use_demo = False
+
+# Navigation setup - replace your existing navigation code
+page = st.sidebar.radio(
+    "Navigation", 
+    ["Home", "Cost & Profitability", "Daily Operations", "Fuel Efficiency", "Maintenance", "Insights"],
+    index=0 if st.session_state.first_visit else 1  # Start on Home for first visit
+)
+
+# Home Page Content
+if page == "Home":
+    st.session_state.first_visit = False  # Mark as visited
+    
+    # Logo and Header
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        try:
+            st.image("prime_tower/prime_logo.png", width=150)  # Adjust path as needed
+        except:
+            st.warning("Logo image not found")
+    
+    with col2:
+        st.title("🚀 Welcome to Prime Tower")
+        st.markdown("""
+            **Prime Tower** is your real-time dashboard to track trips, costs, claims, and profits — 
+            all from your Google Sheet or our demo data.
+        """)
+    
+    # Main Content Sections
+    st.markdown("""
+        ## 👤 Who is this for?
+        
+        Prime Tower is designed specifically for:
+        - **Truck Owners** (1–50 trucks)
+        - **Subcontracted Transporters**
+        - **SME Logistics Managers**
+        - **Fleet Operators** who need better visibility
+        
+        """)
+    
+    st.markdown("""
+        ## 🛠️ How to Get Started
+        
+        Choose one of these options to begin:
+    """)
+    
+    # Get Started Options
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+            ### 1. Try Demo Data
+            Explore the app with sample data to see how it works
+        """)
+        if st.button("🧪 Try Demo Data", use_container_width=True):
+            st.session_state.use_demo = True
+            st.success("Demo mode enabled! Switch to other tabs to explore.")
+    
+    with col2:
+        st.markdown("""
+            ### 2. Connect Your Sheet
+            Use your own data with our Google Sheet template
+        """)
+        if st.button("📊 Connect Google Sheet", use_container_width=True):
+            st.info("Coming soon! Currently using our demo data.")
+    
+    with col3:
+        st.markdown("""
+            ### 3. View Template
+            See how to structure your data for Prime Tower
+        """)
+        if st.button("📄 View Sheet Template", use_container_width=True):
+            st.markdown("""
+                [👉 Open Google Sheet Template](#)
+                (Note: Template link coming soon)
+            """)
+    
+    # Key Features Section
+    st.markdown("""
+        ## 🔑 Key Features
+        
+        | Feature | Description |
+        |---------|-------------|
+        | **Real-time Tracking** | Monitor trips, costs, and profits as they happen |
+        | **Fleet Analytics** | Compare performance across trucks and routes |
+        | **Fuel Efficiency** | Identify optimization opportunities |
+        | **Maintenance Alerts** | Never miss a service or license renewal |
+        | **Profitability Insights** | Spot your best and worst performing routes |
+    """)
+    
+    # Footer with next steps
+    st.markdown("""
+        ---
+        Ready to get started? Select an option above or use the navigation menu to explore.
+    """)
+
 # BRAND COLORS
 PRIMARY_BG = "#000000"  # Jet Black
 ACCENT_TEAL = "#008080"  # Teal
@@ -279,39 +378,50 @@ def kpi_card(title, value, icon=None, emoji=None, delta=None):
 # LOAD DATA
 @st.cache_data
 def load_data_from_gsheet():
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive"
-    ]
-    
-    # Use the same method as get_gsheet_client()
-    creds_dict = {
-        "type": st.secrets["gcp_service_account"]["type"],
-        "project_id": st.secrets["gcp_service_account"]["project_id"],
-        "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
-        "private_key": st.secrets["gcp_service_account"]["private_key"],
-        "client_email": st.secrets["gcp_service_account"]["client_email"],
-        "client_id": st.secrets["gcp_service_account"]["client_id"],
-        "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
-        "token_uri": st.secrets["gcp_service_account"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
-    }
-    
-    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
-    client = gspread.authorize(creds)
-    
-    def get_worksheet_df(sheet_name):
-        return pd.DataFrame(client.open_by_key("1QYHK9DoiBjJPLrQlovHxDkRuv4xImwtzbokul_rOdjI")
-                          .worksheet(sheet_name).get_all_records())
-    
-    return (
-        get_worksheet_df("operations"),
-        get_worksheet_df("tracker"),
-        get_worksheet_df("loi"),
-        get_worksheet_df("truck_pak"),
-        get_worksheet_df("vehicle_cost_schedule")
-    )
+    if st.session_state.get("use_demo", False):
+        # Load your demo data files here
+        # Example (you'll need to implement this properly):
+        operations = pd.read_csv("data/demo_operations.csv")
+        tracker = pd.read_csv("data/demo_tracker.csv")
+        loi = pd.read_csv("data/demo_loi.csv")
+        truck_pak = pd.read_csv("data/demo_truck_pak.csv")
+        vcs = pd.read_csv("data/demo_vcs.csv")
+        return operations, tracker, loi, truck_pak, vcs
+    else:
+        # Original Google Sheets loading code
+        scope = [
+            "https://spreadsheets.google.com/feeds",
+            "https://www.googleapis.com/auth/drive"
+        ]
+        
+        creds_dict = {
+            "type": st.secrets["gcp_service_account"]["type"],
+            "project_id": st.secrets["gcp_service_account"]["project_id"],
+            "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
+            "private_key": st.secrets["gcp_service_account"]["private_key"],
+            "client_email": st.secrets["gcp_service_account"]["client_email"],
+            "client_id": st.secrets["gcp_service_account"]["client_id"],
+            "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
+            "token_uri": st.secrets["gcp_service_account"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
+        }
+        
+        creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
+        client = gspread.authorize(creds)
+        
+        def get_worksheet_df(sheet_name):
+            return pd.DataFrame(client.open_by_key("1QYHK9DoiBjJPLrQlovHxDkRuv4xImwtzbokul_rOdjI")
+                              .worksheet(sheet_name).get_all_records())
+        
+        return (
+            get_worksheet_df("operations"),
+            get_worksheet_df("tracker"),
+            get_worksheet_df("loi"),
+            get_worksheet_df("truck_pak"),
+            get_worksheet_df("vehicle_cost_schedule")
+        )
+
 
 operations, tracker, loi, truck_pak, vcs = load_data_from_gsheet()
 

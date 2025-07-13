@@ -957,16 +957,23 @@ elif selected == "Maintenance":
             if expiring_df.empty:
                 st.success("✅ No licenses or insurance expiring soon.")
             else:
-                for col in ["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]:
-                   expiring_df.loc[:, col] = pd.to_datetime(expiring_df[col], errors='coerce')
+                # Convert to datetime with error handling
+                date_cols = ["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]
+                for col in date_cols:
+                    expiring_df[col] = pd.to_datetime(expiring_df[col], errors='coerce')
                 
-                today = pd.Timestamp.today()
-                days_matrix = expiring_df[["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]].apply(
+                today = pd.Timestamp.today().normalize()  # Use normalize() to remove time component
+                
+                # Calculate days remaining with NaN handling
+                days_matrix = expiring_df[date_cols].apply(
                     lambda col: (col - today).dt.days
-                ).clip(lower=0, upper=30)
+                )
                 
+                # Replace NaT with NaN and handle negative values
                 days_matrix = days_matrix.replace({pd.NaT: np.nan})
+                days_matrix = days_matrix.clip(lower=0, upper=30)  # Only show 0-30 days range
                 
+                # Create heatmap with improved data validation
                 fig2 = go.Figure(data=go.Heatmap(
                     z=days_matrix.values,
                     x=days_matrix.columns,
@@ -978,20 +985,26 @@ elif selected == "Maintenance":
                         [0.8, "yellow"],
                         [1.0, "lightyellow"]
                     ],
-                    colorbar=dict(title="Days to Expiry"),
+                    colorbar=dict(
+                        title="Days to Expiry",
+                        tickvals=[0, 10, 20, 30],
+                        ticktext=["0 (Expired)", "10", "20", "30+"]
+                    ),
                     hoverongaps=False,
-                    hovertemplate="TruckID %{y}<br>%{x}: %{z} days"
+                    hovertemplate="TruckID %{y}<br>%{x}: %{z} days<br>Expiry Date: %{customdata}",
+                    customdata=expiring_df[date_cols].apply(lambda x: x.dt.strftime('%Y-%m-%d'))
                 ))
                 
                 fig2.update_layout(
-                    title="Expiring Licenses & Insurance",
+                    title="Expiring Licenses & Insurance (Next 30 Days)",
                     xaxis_title="Document Type",
-                    yaxis_title="Truck & Driver",
-                    margin=dict(l=30, r=10, t=40, b=40),
-                    height=400,
+                    yaxis_title="Truck",
+                    margin=dict(l=30, r=10, t=60, b=40),  # Increased top margin for title
+                    height=max(400, 50 * len(expiring_df)),  # Dynamic height based on rows
                     paper_bgcolor=PRIMARY_BG,
                     plot_bgcolor=SECONDARY_NAVY,
-                    font=dict(color=WHITE)
+                    font=dict(color=WHITE),
+                    xaxis=dict(side="top")  # Move x-axis to top for better readability
                 )
                 
                 st.plotly_chart(fig2, use_container_width=True)

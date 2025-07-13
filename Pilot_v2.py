@@ -1005,7 +1005,7 @@ elif selected == "Maintenance":
                     paper_bgcolor=PRIMARY_BG,
                     plot_bgcolor=SECONDARY_NAVY,
                     font=dict(color=WHITE),
-                    xaxis=dict(side="top")  # Move x-axis to top for better readability
+                    xaxis=dict(side="bottom")  # Move x-axis to top for better readability
                 )
                 
                 st.plotly_chart(fig2, use_container_width=True)

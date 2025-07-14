@@ -68,10 +68,10 @@ def show_login():
                     <h2 style='color:{ACCENT_TEAL}; margin-bottom: 1.5rem;'>🔐 Prime Tower Login</h2>
             """, unsafe_allow_html=True)
             
-            username = st.text_input("Username", key="login_username_input")
-            password = st.text_input("Password", type="password", key="login_password_input")
+            username = st.text_input("Username", key="login_username")
+            password = st.text_input("Password", type="password", key="login_password")
             
-            if st.button("Login", type="primary", use_container_width=True, key="login_button_main"):
+            if st.button("Login", type="primary", use_container_width=True):
                 authenticate(username, password)
             
             st.markdown("</div>", unsafe_allow_html=True)
@@ -108,7 +108,7 @@ if "first_visit" not in st.session_state:
 with st.sidebar:
     # User profile
     try:
-        st.image("prime_tower/prime_logo.png", width=100, use_column_width="auto")
+        st.image("prime_tower/prime_logo.png", width=100)
     except:
         st.warning("Logo image not found")
     
@@ -138,39 +138,13 @@ with st.sidebar:
                 "--hover-color": ACCENT_TEAL,
             },
             "nav-link-selected": {"background-color": ACCENT_TEAL},
-        },
-        key="main_navigation_menu"
+        }
     )
     
     # Logout button
-    if st.button("Logout", type="primary", use_container_width=True, key="sidebar_logout_button"):
+    if st.button("Logout", type="primary", use_container_width=True):
         st.session_state.logged_in = False
         st.rerun()
-
-    # Date Filter
-    selected_month_display = st.selectbox(
-        "Select Month",
-        available_months_display,
-        index=len(available_months_display)-1,
-        key="sidebar_month_select"
-    )
-    selected_month = month_dict[selected_month_display]
-        
-    # Truck Filter
-    selected_truck = st.selectbox(
-        "Filter by Truck",
-        ["All"] + sorted(truck_pak["TruckID"].unique()),
-        index=0,
-        key="sidebar_truck_select"
-    )
-        
-    # Route Filter
-    selected_route = st.selectbox(
-        "Filter by Route", 
-        ["All"] + sorted(loi["Route Code"].unique()),
-        index=0,
-        key="sidebar_route_select"
-    )
 
 # --- MAIN CONTENT AREA ---
 if selected == "Home":
@@ -186,7 +160,7 @@ if selected == "Home":
         """)
     with col2:
         try:
-            st.image("prime_tower/prime_logo.png", width=150, use_column_width="auto")
+            st.image("prime_tower/prime_logo.png", width=150)
         except:
             st.warning("Logo image not found")
     
@@ -207,44 +181,62 @@ if selected == "Home":
         Choose one of these options to begin:
     """)
     
-    # Get Started Options
-    col1, col2, col3 = st.columns(3)
+   # Get Started Options
+col1, col2, col3 = st.columns(3)
 
-    with col1:
+with col1:
+    st.markdown("""
+        ### 1. Try Demo Data
+        Explore the app with sample data to see how it works
+    """)
+    if st.button("🧪 Try Demo Data", 
+                use_container_width=True,
+                key="demo_data_button"):  # Added unique key
+        st.session_state.use_demo = True
+        st.success("Demo mode enabled! Switch to other tabs to explore.")
+
+with col2:
+    st.markdown("""
+        ### 2. Connect Your Sheet
+        Use your own data with our Google Sheet template
+    """)
+    if st.button("📊 Connect Google Sheet", 
+                use_container_width=True,
+                key="connect_sheet_button"):  # Added unique key
+        st.info("Coming soon! Currently using our demo data.")
+
+with col3:
+    st.markdown("""
+        ### 3. View Template
+        See how to structure your data for Prime Tower
+    """)
+    if st.button("📄 View Sheet Template", 
+                use_container_width=True,
+                key="view_template_button"):  # Added unique key
         st.markdown("""
-            ### 1. Try Demo Data
-            Explore the app with sample data to see how it works
+            [👉 Open Google Sheet Template](#)
+            (Note: Template link coming soon)
         """)
-        if st.button("🧪 Try Demo Data", 
-                    use_container_width=True,
-                    key="home_demo_button"):
-            st.session_state.use_demo = True
-            st.success("Demo mode enabled! Switch to other tabs to explore.")
+    
+    # Key Features Section
+    st.markdown("""
+        ## 🔑 Key Features
+        
+        | Feature | Description |
+        |---------|-------------|
+        | **Real-time Tracking** | Monitor trips, costs, and profits as they happen |
+        | **Fleet Analytics** | Compare performance across trucks and routes |
+        | **Fuel Efficiency** | Identify optimization opportunities |
+        | **Maintenance Alerts** | Never miss a service or license renewal |
+        | **Profitability Insights** | Spot your best and worst performing routes |
+    """)
+    
+    # Footer with next steps
+    st.markdown("""
+        ---
+        Ready to get started? Select an option above or use the navigation menu to explore.
+    """)
 
-    with col2:
-        st.markdown("""
-            ### 2. Connect Your Sheet
-            Use your own data with our Google Sheet template
-        """)
-        if st.button("📊 Connect Google Sheet", 
-                    use_container_width=True,
-                    key="home_connect_button"):
-            st.info("Coming soon! Currently using our demo data.")
-
-    with col3:
-        st.markdown("""
-            ### 3. View Template
-            See how to structure your data for Prime Tower
-        """)
-        if st.button("📄 View Sheet Template", 
-                    use_container_width=True,
-                    key="home_template_button"):
-            st.markdown("""
-                [👉 Open Google Sheet Template](#)
-                (Note: Template link coming soon)
-            """)
-
-# Rest of your code remains the same, just ensure all widgets have unique keys
 
 # COLOR MAP FOR CHARTS
 COLOR_MAP = {
@@ -277,7 +269,220 @@ def get_gsheet_client():
     creds = service_account.Credentials.from_service_account_info(creds_dict)
     return gspread.authorize(creds)
 
-# ... [rest of your existing functions and code]
+@st.cache_data
+def load_sheet_data():
+    client = get_gsheet_client()
+    sheet = client.open_by_key("1QYHK9DoiBjJPLrQlovHxDkRuv4xImwtzbokul_rOdjI").worksheet("Sheet1")
+    return pd.DataFrame(sheet.get_all_records())
+
+@st.cache_data
+def get_resized_image(image_path):
+    buffered = BytesIO()
+    Image.open(image_path).resize((100, 100)).save(buffered, format="PNG")
+    return buffered.getvalue()
+
+# PAGE CONFIG
+st.set_page_config(
+    page_title="PrimeTower Fleet Dashboard",
+    page_icon="prime_tower/prime_logo.png",  # Path to local file
+    layout="wide"
+)
+
+#st.title("My App with Custom Favicon 🚛")
+
+# CUSTOM STYLES
+st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+
+    html, body, [class*="css"] {{
+        font-family: 'Inter', sans-serif;
+        background-color: {PRIMARY_BG};
+        color: {WHITE};
+    }}
+
+    h1, h2, h3, h4, h5, h6 {{
+        font-family: 'Poppins', sans-serif;
+        color: {WHITE};
+    }}
+
+    /* Container style */
+    .container {{
+        padding: 5px;
+        background-color: {SECONDARY_NAVY};
+    }}
+
+    /* Metric cards */
+    .metric-card {{
+        background-color: {SECONDARY_NAVY};
+        border-radius: 16px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid {ACCENT_TEAL};
+    }}
+
+    .metric-card:hover {{
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.75);
+    }}
+
+    .metric-card h3 {{
+        font-weight: 600;
+        font-size: 1rem;
+        color: #94A3B8;
+        margin-bottom: 0.3rem;
+    }}
+
+    .metric-card p {{
+        font-size: 2.1rem;
+        font-weight: 700;
+        color: {ACCENT_GOLD};
+        margin: 0;
+    }}
+
+    /* Tabs style */
+    .stTabs [role="tab"] {{
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: {ACCENT_TEAL};
+        padding: 10px 15px;
+        border-radius: 5px;
+    }}
+
+    .stTabs [aria-selected="true"] {{
+        background-color: {ACCENT_TEAL};
+        color: {WHITE};
+    }}
+
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {{
+        background-color: {SECONDARY_NAVY} !important;
+        border-right: 2px solid {ACCENT_TEAL};
+    }}
+
+    /* Buttons */
+    .stButton>button {{
+        background-color: {ACCENT_TEAL};
+        color: {WHITE};
+        border: none;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease;
+    }}
+
+    .stButton>button:hover {{
+        background-color: #006666;
+        color: {WHITE};
+    }}
+
+    /* Dataframes */
+    .dataframe {{
+        background-color: {SECONDARY_NAVY} !important;
+    }}
+
+    .dataframe td, .dataframe th {{
+        background-color: {SECONDARY_NAVY} !important;
+        color: {WHITE} !important;
+        border: 1px solid {ACCENT_TEAL};
+    }}
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {{
+        width: 8px;
+    }}
+
+    ::-webkit-scrollbar-track {{
+        background: {PRIMARY_BG};
+    }}
+
+    ::-webkit-scrollbar-thumb {{
+        background: {ACCENT_TEAL};
+        border-radius: 4px;
+    }}
+
+    ::-webkit-scrollbar-thumb:hover {{
+        background: #006666;
+    }}
+    </style>
+""", unsafe_allow_html=True)
+
+# Apply chart theme
+pio.templates["prime_theme"] = go.layout.Template(
+    layout=go.Layout(
+        font=dict(family="Inter", size=13, color=WHITE),
+        title=dict(font=dict(size=16, color=ACCENT_TEAL)),
+        paper_bgcolor=PRIMARY_BG,
+        plot_bgcolor=SECONDARY_NAVY,
+        margin=dict(l=40, r=20, t=40, b=40),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor="#333333",
+            title_font=dict(size=13),
+            automargin=True
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor="#333333",
+            title_font=dict(size=13),
+            automargin=True
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.25,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=12)
+        ),
+        colorway=[ACCENT_TEAL, "#d32f2f", ACCENT_GOLD, "#ffa726", "#26a69a"]
+    )
+)
+pio.templates.default = "prime_theme"
+
+def apply_chart_style(fig, title, height=400):
+    fig.update_layout(
+        title=dict(text=title, font=dict(color=WHITE)),
+        height=height,
+        title_font_size=16,
+        margin=dict(l=40, r=20, t=40, b=40),
+        xaxis_title=None,
+        yaxis_title=None,
+        uniformtext_minsize=10,
+        uniformtext_mode='hide',
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.2,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=12)
+        )
+    )
+    return fig
+
+def kpi_card(title, value, icon=None, emoji=None, delta=None):
+    icon_html = f'<i class="bi bi-{icon}" style="font-size: 1.2rem; margin-right: 6px; color: {ACCENT_TEAL};"></i>' if icon else ""
+    emoji_html = f'{emoji} ' if emoji else ""
+    
+    delta_html = ""
+    if delta is not None:
+        delta_color = "#2e7d32" if delta >= 0 else "#d32f2f"
+        delta_icon = "↑" if delta >= 0 else "↓"
+        delta_html = f"""<div style='font-size:12px; color:{delta_color}; margin-top:5px;'>
+                            {delta_icon} {abs(delta):.1f}% vs last period
+                         </div>"""
+    
+    return f"""
+        <div class="metric-card">
+            <h5 style='margin:0; font-size:15px; color:#f1f1f1;'>{icon_html}{emoji_html}{title}</h5>
+            <p style='margin:5px 0 0; font-size:20px; font-weight:bold;'>{value}</p>
+            {delta_html}
+        </div>
+    """
 
 # LOAD DATA
 @st.cache_data
@@ -327,6 +532,7 @@ def load_data_from_gsheet():
             get_worksheet_df("truck_pak"),
             get_worksheet_df("vehicle_cost_schedule")
         )
+
 
 operations, tracker, loi, truck_pak, vcs = load_data_from_gsheet()
 
@@ -384,7 +590,86 @@ with st.sidebar:
             st.error(f"Error loading image: {e}")
             return ""
     
-  
+    # Login form if not authenticated
+  #  if not st.session_state.logged_in:
+    #    st.markdown(f"""
+     #       <div style='text-align:center; margin-bottom:20px;'>
+    #            <h3 style='color:{ACCENT_TEAL};'>🔐 Prime Tower Login</h3>
+     #       </div>
+     #   """, unsafe_allow_html=True)
+        
+     #   username_input = st.text_input("Username")
+     #   password_input = st.text_input("Password", type="password")
+     #   
+   #     if st.button("Login", type="primary"):
+    #        if username_input in usernames and usernames[username_input] == password_input:
+    #            st.session_state.logged_in = True
+     #           st.session_state.username = username_input
+    #            st.success(f"Welcome, {username_input}!")
+     #           st.rerun()  # Refresh to show authenticated content
+    #        else:
+     #           st.error("Invalid credentials")
+     #   st.stop()  # Stop execution if not logged in
+    
+    # Display user profile after login
+   # else:
+        # Try loading just the filename first (it will check multiple locations)
+     #   img_base64 = get_base64_image("PPL.png")
+        
+       # st.markdown(
+       #     f"""
+       #     <div style='background-color:{SECONDARY_NAVY}; padding:15px; border-radius:10px; text-align:center; border:1px solid {ACCENT_TEAL};'>
+       #         <img src='data:image/jpeg;base64,{img_base64}' style='width:60px; height:60px; border-radius:50%; margin-bottom:10px; border:2px solid {ACCENT_GOLD};'>
+        #        <div style='color:{WHITE}; font-size:14px;'>
+        #            <strong>User:</strong> {st.session_state.username}<br>
+         #           <strong>Status:</strong> <span style='color:{ACCENT_TEAL};'>Active</span>
+        #        </div>
+        #    </div>
+       #     """,
+        #    unsafe_allow_html=True
+      #  )
+            
+        
+            
+        # Date Filter
+        selected_month_display = st.selectbox(
+                "Select Month",
+                available_months_display,
+                index=len(available_months_display)-1,
+                key="month_filter"
+            )
+        selected_month = month_dict[selected_month_display]
+            
+        # Truck Filter
+        selected_truck = st.selectbox(
+                "Filter by Truck",
+                ["All"] + sorted(truck_pak["TruckID"].unique()),
+                index=0,
+                key="truck_filter"
+            )
+            
+      # Route Filter
+        selected_route = st.selectbox(
+                "Filter by Route", 
+                ["All"] + sorted(loi["Route Code"].unique()),
+                index=0,
+                key="route_filter"
+            )
+            
+        st.markdown("</div></div>", unsafe_allow_html=True)
+            
+            # Logout Button
+        #if st.button("Logout", type="primary", use_container_width=True):
+        #    st.session_state.logged_in = False
+        #    st.experimental_rerun()
+            
+            # Footer
+       # st.markdown(f"""
+         #       <div style='margin-top:20px; text-align:center; color:#aaaaaa; font-size:12px;'>
+        #            © 2025 Prime Chain Solutions
+         #       </div>
+         #   """, unsafe_allow_html=True)
+
 
 # --- Apply filters ---
 filtered_ops = operations.copy()

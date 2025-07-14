@@ -450,13 +450,22 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.rerun()
 
+
+
+# Set defaults if not submitted
+#selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
+#selected_truck = st.session_state.get("truck_filter", "All")
+#selected_route = st.session_state.get("route_filter", "All")
+selected_month = month_dict[selected_month_display]  # <-- Add this line!
+
 # --- Apply filters ---
 filtered_ops = operations.copy()
 if selected_truck != "All":
     filtered_ops = filtered_ops[filtered_ops["TruckID"] == selected_truck]
 if selected_route != "All":
     filtered_ops = filtered_ops[filtered_ops["Route Code"] == selected_route]
-filtered_ops = filtered_ops[filtered_ops["Year-Month"] == selected_month]
+filtered_ops = filtered_ops[filtered_ops["Year-Month"] == selected_month
+
 
 # Calculate previous period for delta comparisons
 prev_month = (pd.to_datetime(selected_month) - pd.DateOffset(months=1)).strftime("%Y-%m")

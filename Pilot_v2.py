@@ -571,177 +571,177 @@ with col3:
     """)
 
     elif selected == "Cost & Profitability":
-    st.markdown("Analyze cost structures and profitability by truck and route")
-    
-    # Prepare cost data
-    cost_df = filtered_ops.copy()
-    cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
-    cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
-    cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
-    cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
-                                 "Tyres (R/km)", "Daily Fixed Cost (R/day)"]],
-                    on="TruckID", how="left")
-
-    # Calculations
-    cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
-    cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
-        cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
-    )
-    cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
-    cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
-    cost_df["Profit per Ton (R)"] = cost_df["Profit (R)"] / cost_df["Ton Reg"]
-    cost_df["Cost per Ton (R)"] = cost_df["Total Cost (R)"] / cost_df["Ton Reg"]
-    
-    # KPIs with delta calculations - with improved error handling
-    total_revenue = cost_df["Revenue (R)"].sum()
-    
-    # Handle cases where previous month data might be empty or invalid
-    try:
-        prev_revenue = prev_month_filtered["Ton Reg"].sum() * loi["Rate per ton"].mean() if not prev_month_filtered.empty else 0
-        revenue_delta = ((total_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue != 0 else 0
-    except:
-        prev_revenue = 0
-        revenue_delta = 0
-    
-    total_cost = cost_df["Total Cost (R)"].sum()
-    
-    # Improved fixed cost calculation with error handling
-    try:
-        fixed_cost_mean = pd.to_numeric(vcs["Daily Fixed Cost (R/day)"], errors='coerce').mean()
-        prev_cost = len(prev_month_filtered) * fixed_cost_mean if not prev_month_filtered.empty else 0
-        cost_delta = ((total_cost - prev_cost) / prev_cost * 100) if prev_cost != 0 else 0
-    except:
-        prev_cost = 0
-        cost_delta = 0
-    
-    avg_cost_per_km = (cost_df["Total Cost (R)"] / cost_df["Distance (km)"]).mean()
-    profitable_trucks = cost_df[cost_df["Profit (R)"] > 0]["TruckID"].nunique()
-    total_trucks = cost_df["TruckID"].nunique()
-
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.markdown(kpi_card("Total Revenue", f"R{total_revenue:,.2f}", icon="currency-dollar", delta=revenue_delta), unsafe_allow_html=True)
-    with col2:
-        st.markdown(kpi_card("Total Cost", f"R{total_cost:,.2f}", icon="cash-stack", delta=cost_delta), unsafe_allow_html=True)
-    with col3:
-        st.markdown(kpi_card("Avg Cost per KM", f"R{avg_cost_per_km:,.2f}", icon="calculator"), unsafe_allow_html=True)
-    with col4:
-        st.markdown(kpi_card("Profitable Trucks", f"{profitable_trucks} / {total_trucks}", icon="graph-up"), unsafe_allow_html=True)
-    
-    st.caption(f"Data from {cost_df['Date'].min().date()} to {cost_df['Date'].max().date()}")
-
-    with st.container():
-        col1, col2 = st.columns(2)
+        st.markdown("Analyze cost structures and profitability by truck and route")
         
-        # Cost Breakdown per Truck
+        # Prepare cost data
+        cost_df = filtered_ops.copy()
+        cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
+        cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
+        cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
+        cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
+                                     "Tyres (R/km)", "Daily Fixed Cost (R/day)"]],
+                        on="TruckID", how="left")
+    
+        # Calculations
+        cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
+        cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
+            cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
+        )
+        cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
+        cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
+        cost_df["Profit per Ton (R)"] = cost_df["Profit (R)"] / cost_df["Ton Reg"]
+        cost_df["Cost per Ton (R)"] = cost_df["Total Cost (R)"] / cost_df["Ton Reg"]
+        
+        # KPIs with delta calculations - with improved error handling
+        total_revenue = cost_df["Revenue (R)"].sum()
+        
+        # Handle cases where previous month data might be empty or invalid
+        try:
+            prev_revenue = prev_month_filtered["Ton Reg"].sum() * loi["Rate per ton"].mean() if not prev_month_filtered.empty else 0
+            revenue_delta = ((total_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue != 0 else 0
+        except:
+            prev_revenue = 0
+            revenue_delta = 0
+        
+        total_cost = cost_df["Total Cost (R)"].sum()
+        
+        # Improved fixed cost calculation with error handling
+        try:
+            fixed_cost_mean = pd.to_numeric(vcs["Daily Fixed Cost (R/day)"], errors='coerce').mean()
+            prev_cost = len(prev_month_filtered) * fixed_cost_mean if not prev_month_filtered.empty else 0
+            cost_delta = ((total_cost - prev_cost) / prev_cost * 100) if prev_cost != 0 else 0
+        except:
+            prev_cost = 0
+            cost_delta = 0
+        
+        avg_cost_per_km = (cost_df["Total Cost (R)"] / cost_df["Distance (km)"]).mean()
+        profitable_trucks = cost_df[cost_df["Profit (R)"] > 0]["TruckID"].nunique()
+        total_trucks = cost_df["TruckID"].nunique()
+    
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
-            grouped_cost = cost_df.groupby("TruckID").agg({
-                "Revenue (R)": "sum",
-                "Variable Cost (R)": "sum",
-                "Daily Fixed Cost (R/day)": "sum",
-                "Total Cost (R)": "sum",
-                "Profit (R)": "sum"
+            st.markdown(kpi_card("Total Revenue", f"R{total_revenue:,.2f}", icon="currency-dollar", delta=revenue_delta), unsafe_allow_html=True)
+        with col2:
+            st.markdown(kpi_card("Total Cost", f"R{total_cost:,.2f}", icon="cash-stack", delta=cost_delta), unsafe_allow_html=True)
+        with col3:
+            st.markdown(kpi_card("Avg Cost per KM", f"R{avg_cost_per_km:,.2f}", icon="calculator"), unsafe_allow_html=True)
+        with col4:
+            st.markdown(kpi_card("Profitable Trucks", f"{profitable_trucks} / {total_trucks}", icon="graph-up"), unsafe_allow_html=True)
+        
+        st.caption(f"Data from {cost_df['Date'].min().date()} to {cost_df['Date'].max().date()}")
+    
+        with st.container():
+            col1, col2 = st.columns(2)
+            
+            # Cost Breakdown per Truck
+            with col1:
+                grouped_cost = cost_df.groupby("TruckID").agg({
+                    "Revenue (R)": "sum",
+                    "Variable Cost (R)": "sum",
+                    "Daily Fixed Cost (R/day)": "sum",
+                    "Total Cost (R)": "sum",
+                    "Profit (R)": "sum"
+                }).reset_index()
+                
+                df_plot = grouped_cost[["TruckID", "Variable Cost (R)", "Daily Fixed Cost (R/day)"]].melt(
+                    id_vars="TruckID",
+                    var_name="Cost Type",
+                    value_name="Cost (R)"
+                )
+                
+                fig = px.bar(
+                    df_plot,
+                    x="TruckID",
+                    y="Cost (R)",
+                    color="Cost Type",
+                    barmode="stack",
+                    title="Cost Structure by Truck",
+                    color_discrete_map={
+                        "Variable Cost (R)": COLOR_MAP["Variable Cost"],
+                        "Daily Fixed Cost (R/day)": COLOR_MAP["Fixed Cost"]
+                    }
+                )
+                fig = apply_chart_style(fig, "Cost Structure by Truck")
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Profitability by Truck
+            with col2:
+                fig2 = px.bar(
+                    grouped_cost,
+                    x="TruckID",
+                    y="Profit (R)",
+                    color="Profit (R)",
+                    color_continuous_scale=[(0, "#d32f2f"), (1, ACCENT_TEAL)],
+                    title="Profit by Truck",
+                    labels={"Profit (R)": "Profit (R)"}
+                )
+                fig2 = apply_chart_style(fig2, "Profit by Truck")
+                st.plotly_chart(fig2, use_container_width=True)
+        
+        with st.container():
+            # Route profitability heatmap
+            route_profit = cost_df.groupby("Route Code").agg({
+                "Revenue (R)": "mean",
+                "Total Cost (R)": "mean",
+                "Profit (R)": "mean",
+                "Ton Reg": "sum"
             }).reset_index()
             
-            df_plot = grouped_cost[["TruckID", "Variable Cost (R)", "Daily Fixed Cost (R/day)"]].melt(
-                id_vars="TruckID",
-                var_name="Cost Type",
-                value_name="Cost (R)"
-            )
-            
-            fig = px.bar(
-                df_plot,
-                x="TruckID",
-                y="Cost (R)",
-                color="Cost Type",
-                barmode="stack",
-                title="Cost Structure by Truck",
-                color_discrete_map={
-                    "Variable Cost (R)": COLOR_MAP["Variable Cost"],
-                    "Daily Fixed Cost (R/day)": COLOR_MAP["Fixed Cost"]
-                }
-            )
-            fig = apply_chart_style(fig, "Cost Structure by Truck")
-            st.plotly_chart(fig, use_container_width=True)
-        
-        # Profitability by Truck
-        with col2:
-            fig2 = px.bar(
-                grouped_cost,
-                x="TruckID",
-                y="Profit (R)",
+            fig3 = px.scatter(
+                route_profit,
+                x="Revenue (R)",
+                y="Total Cost (R)",
+                size="Ton Reg",
                 color="Profit (R)",
+                hover_name="Route Code",
+                title="Route Profitability (Bubble Size = Total Tons)",
                 color_continuous_scale=[(0, "#d32f2f"), (1, ACCENT_TEAL)],
-                title="Profit by Truck",
-                labels={"Profit (R)": "Profit (R)"}
+                size_max=40
             )
-            fig2 = apply_chart_style(fig2, "Profit by Truck")
-            st.plotly_chart(fig2, use_container_width=True)
-    
-    with st.container():
-        # Route profitability heatmap
-        route_profit = cost_df.groupby("Route Code").agg({
-            "Revenue (R)": "mean",
-            "Total Cost (R)": "mean",
-            "Profit (R)": "mean",
-            "Ton Reg": "sum"
-        }).reset_index()
-        
-        fig3 = px.scatter(
-            route_profit,
-            x="Revenue (R)",
-            y="Total Cost (R)",
-            size="Ton Reg",
-            color="Profit (R)",
-            hover_name="Route Code",
-            title="Route Profitability (Bubble Size = Total Tons)",
-            color_continuous_scale=[(0, "#d32f2f"), (1, ACCENT_TEAL)],
-            size_max=40
-        )
-        fig3.add_shape(
-            type="line", line=dict(dash="dash", color=WHITE),
-            x0=0, y0=0, x1=route_profit["Revenue (R)"].max()*1.1,
-            y1=route_profit["Revenue (R)"].max()*1.1
-        )
-        fig3 = apply_chart_style(fig3, "Route Profitability Analysis")
-        st.plotly_chart(fig3, use_container_width=True)
-    
-    # Loss-Making Analysis
-    loss_df = cost_df[cost_df["Profit (R)"] < 0]
-    
-    if not loss_df.empty:
-        st.warning(f"🚨 {len(loss_df)} trips resulted in losses totaling R{loss_df['Profit (R)'].sum():,.2f}")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("**Top Loss-Making Trucks**")
-            loss_trucks = loss_df.groupby("TruckID")["Profit (R)"].sum().sort_values().reset_index()
-            fig4 = px.bar(
-                loss_trucks,
-                x="TruckID",
-                y="Profit (R)",
-                color="Profit (R)",
-                color_continuous_scale=[(0, "#d32f2f"), (1, "#d32f2f")],
-                title="Cumulative Loss by Truck"
+            fig3.add_shape(
+                type="line", line=dict(dash="dash", color=WHITE),
+                x0=0, y0=0, x1=route_profit["Revenue (R)"].max()*1.1,
+                y1=route_profit["Revenue (R)"].max()*1.1
             )
-            fig4 = apply_chart_style(fig4, "Cumulative Loss by Truck")
-            st.plotly_chart(fig4, use_container_width=True)
+            fig3 = apply_chart_style(fig3, "Route Profitability Analysis")
+            st.plotly_chart(fig3, use_container_width=True)
         
-        with col2:
-            st.markdown("**Loss-Making Routes**")
-            loss_routes = loss_df.groupby("Route Code")["Profit (R)"].sum().sort_values().reset_index()
-            fig5 = px.bar(
-                loss_routes,
-                x="Route Code",
-                y="Profit (R)",
-                color="Profit (R)",
-                color_continuous_scale=[(0, "#d32f2f"), (1, "#d32f2f")],
-                title="Cumulative Loss by Route"
-            )
-            fig5 = apply_chart_style(fig5, "Cumulative Loss by Route")
-            st.plotly_chart(fig5, use_container_width=True)
-    else:
-        st.success("✅ All trips were profitable in the selected period.")
+        # Loss-Making Analysis
+        loss_df = cost_df[cost_df["Profit (R)"] < 0]
+        
+        if not loss_df.empty:
+            st.warning(f"🚨 {len(loss_df)} trips resulted in losses totaling R{loss_df['Profit (R)'].sum():,.2f}")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Top Loss-Making Trucks**")
+                loss_trucks = loss_df.groupby("TruckID")["Profit (R)"].sum().sort_values().reset_index()
+                fig4 = px.bar(
+                    loss_trucks,
+                    x="TruckID",
+                    y="Profit (R)",
+                    color="Profit (R)",
+                    color_continuous_scale=[(0, "#d32f2f"), (1, "#d32f2f")],
+                    title="Cumulative Loss by Truck"
+                )
+                fig4 = apply_chart_style(fig4, "Cumulative Loss by Truck")
+                st.plotly_chart(fig4, use_container_width=True)
+            
+            with col2:
+                st.markdown("**Loss-Making Routes**")
+                loss_routes = loss_df.groupby("Route Code")["Profit (R)"].sum().sort_values().reset_index()
+                fig5 = px.bar(
+                    loss_routes,
+                    x="Route Code",
+                    y="Profit (R)",
+                    color="Profit (R)",
+                    color_continuous_scale=[(0, "#d32f2f"), (1, "#d32f2f")],
+                    title="Cumulative Loss by Route"
+                )
+                fig5 = apply_chart_style(fig5, "Cumulative Loss by Route")
+                st.plotly_chart(fig5, use_container_width=True)
+        else:
+            st.success("✅ All trips were profitable in the selected period.")
 
 elif selected == "Daily Operations":
     st.markdown("Monitor daily truck activities and performance metrics")

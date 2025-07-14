@@ -570,7 +570,7 @@ with col3:
         Ready to get started? Select an option above or use the navigation menu to explore.
     """)
 
-elif selected == "Cost & Profitability":
+    elif selected == "Cost & Profitability":
     st.markdown("Analyze cost structures and profitability by truck and route")
     
     # Prepare cost data

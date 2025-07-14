@@ -412,32 +412,38 @@ with st.sidebar:
         }
     )
     
-    # Date Filter
-    selected_month_display = st.selectbox(
-        "Select Month",
-        available_months_display,
-        index=len(available_months_display)-1,
-        key="month_filter"
-    )
-    selected_month = month_dict[selected_month_display]
-        
-    # Truck Filter
-    selected_truck = st.selectbox(
-        "Filter by Truck",
-        ["All"] + sorted(truck_pak["TruckID"].unique()),
-        index=0,
-        key="truck_filter"
-    )
-        
-    # Route Filter
-    selected_route = st.selectbox(
-        "Filter by Route", 
-        ["All"] + sorted(loi["Route Code"].unique()),
-        index=0,
-        key="route_filter"
-    )
-        
-    st.markdown("</div></div>", unsafe_allow_html=True)
+    with st.sidebar:
+        with st.form("filters_form"):
+            col1, col2, col3 = st.columns([1,1,1])
+            with col1:
+                selected_month_display = st.selectbox(
+                    "Month", 
+                    available_months_display, 
+                    index=len(available_months_display)-1
+                )
+            with col2:
+                selected_truck = st.selectbox(
+                    "Truck", 
+                    ["All"] + sorted(truck_pak["TruckID"].unique()), 
+                    index=0
+                )
+            with col3:
+                selected_route = st.selectbox(
+                    "Route", 
+                    ["All"] + sorted(loi["Route Code"].unique()), 
+                    index=0
+                )
+            submitted = st.form_submit_button("Apply Filters")
+        # Only update filters on submit
+        if submitted:
+            st.session_state.month_filter = selected_month_display
+            st.session_state.truck_filter = selected_truck
+            st.session_state.route_filter = selected_route
+        # Set defaults if not submitted
+        selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
+        selected_truck = st.session_state.get("truck_filter", "All")
+        selected_route = st.session_state.get("route_filter", "All")
+    
     
     # Logout button
     if st.button("Logout", type="primary", use_container_width=True):

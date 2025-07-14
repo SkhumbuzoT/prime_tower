@@ -47,7 +47,6 @@ st.set_page_config(
 # CUSTOM STYLES
 st.markdown(f"""
     <style>
-    /* Your existing styles here */
     .login-container {{
         display: flex;
         justify-content: center;
@@ -119,7 +118,6 @@ COLOR_MAP = {
 
 @st.cache_resource
 def get_gsheet_client():
-    # Create credentials from secrets
     creds_dict = {
         "type": st.secrets["gcp_service_account"]["type"],
         "project_id": st.secrets["gcp_service_account"]["project_id"],
@@ -164,13 +162,10 @@ st.markdown(f"""
         color: {WHITE};
     }}
 
-    /* Container style */
     .container {{
         padding: 5px;
         background-color: {SECONDARY_NAVY};
     }}
-
-    /* Metric cards */
     .metric-card {{
         background-color: {SECONDARY_NAVY};
         border-radius: 16px;
@@ -180,27 +175,22 @@ st.markdown(f"""
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: 1px solid {ACCENT_TEAL};
     }}
-
     .metric-card:hover {{
         transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.75);
     }}
-
     .metric-card h3 {{
         font-weight: 600;
         font-size: 1rem;
         color: #94A3B8;
         margin-bottom: 0.3rem;
     }}
-
     .metric-card p {{
         font-size: 2.1rem;
         font-weight: 700;
         color: {ACCENT_GOLD};
         margin: 0;
     }}
-
-    /* Tabs style */
     .stTabs [role="tab"] {{
         font-family: 'Poppins', sans-serif;
         font-size: 16px;
@@ -209,19 +199,14 @@ st.markdown(f"""
         padding: 10px 15px;
         border-radius: 5px;
     }}
-
     .stTabs [aria-selected="true"] {{
         background-color: {ACCENT_TEAL};
         color: {WHITE};
     }}
-
-    /* Sidebar styling */
     [data-testid="stSidebar"] {{
         background-color: {SECONDARY_NAVY} !important;
         border-right: 2px solid {ACCENT_TEAL};
     }}
-
-    /* Buttons */
     .stButton>button {{
         background-color: {ACCENT_TEAL};
         color: {WHITE};
@@ -230,37 +215,28 @@ st.markdown(f"""
         font-family: 'Poppins', sans-serif;
         transition: all 0.3s ease;
     }}
-
     .stButton>button:hover {{
         background-color: #006666;
         color: {WHITE};
     }}
-
-    /* Dataframes */
     .dataframe {{
         background-color: {SECONDARY_NAVY} !important;
     }}
-
     .dataframe td, .dataframe th {{
         background-color: {SECONDARY_NAVY} !important;
         color: {WHITE} !important;
         border: 1px solid {ACCENT_TEAL};
     }}
-
-    /* Custom scrollbar */
     ::-webkit-scrollbar {{
         width: 8px;
     }}
-
     ::-webkit-scrollbar-track {{
         background: {PRIMARY_BG};
     }}
-
     ::-webkit-scrollbar-thumb {{
         background: {ACCENT_TEAL};
         border-radius: 4px;
     }}
-
     ::-webkit-scrollbar-thumb:hover {{
         background: #006666;
     }}
@@ -345,7 +321,6 @@ def kpi_card(title, value, icon=None, emoji=None, delta=None):
 @st.cache_data
 def load_data_from_gsheet():
     if st.session_state.get("use_demo", False):
-        # Load demo data
         @st.cache_data
         def load_demo_data():
             operations = pd.read_csv("data/demo_operations.csv")
@@ -356,7 +331,6 @@ def load_data_from_gsheet():
             return operations, tracker, loi, truck_pak, vcs
         return load_demo_data()
     else:
-        # Original Google Sheets loading code
         scope = [
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive"
@@ -404,7 +378,6 @@ available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m]
 
 # Navigation menu - in sidebar
 with st.sidebar:
-    # User profile
     try:
         st.image("prime_tower/prime_logo.png", width=100)
     except:
@@ -490,7 +463,6 @@ merged_ops = pd.merge(filtered_ops, loi, on="Route Code", how="left")
 if selected == "Home":
     st.session_state.first_visit = False
     
-    # Logo and Header
     col1, col2 = st.columns([3, 1])
     with col1:
         st.title("🚀 Welcome to Prime Tower")
@@ -504,67 +476,59 @@ if selected == "Home":
         except:
             st.warning("Logo image not found")
     
- # Main Content Sections
-st.markdown("""
-    ## 👤 Who is this for?
+    # Main Content Sections
+    st.markdown("""
+        ## 👤 Who is this for?
+        
+        Prime Tower is designed specifically for:
+        - **Truck Owners** (1–50 trucks)
+        - **Subcontracted Transporters**
+        - **SME Logistics Managers**
+        - **Fleet Operators** who need better visibility
+    """)
+    st.markdown("""
+        ## 🛠️ How to Get Started
+        
+        Choose one of these options to begin:
+    """)
     
-    Prime Tower is designed specifically for:
-    - **Truck Owners** (1–50 trucks)
-    - **Subcontracted Transporters**
-    - **SME Logistics Managers**
-    - **Fleet Operators** who need better visibility
-""")
-
-st.markdown("""
-    ## 🛠️ How to Get Started
-    
-    Choose one of these options to begin:
-""")
-
-# Get Started Options
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.markdown("""
-        ### 1. Try Demo Data
-        Explore the app with sample data to see how it works
-    """)
-    if st.button("🧪 Try Demo Data", use_container_width=True, key="demo_data_button"):
-        st.session_state.use_demo = True
-        st.rerun()
-
-with col2:
-    st.markdown("""
-        ### 2. Connect Your Sheet
-        Use your own data with our Google Sheet template
-    """)
-    if st.button("📊 Connect Google Sheet", use_container_width=True, key="connect_sheet_button"):
-        st.info("Coming soon! Currently using our demo data.")
-
-with col3:
-    st.markdown("""
-        ### 3. View Template
-        See how to structure your data for Prime Tower
-    """)
-    if st.button("📄 View Sheet Template", use_container_width=True, key="view_template_button"):
+    col1, col2, col3 = st.columns(3)
+    with col1:
         st.markdown("""
-            [👉 Open Google Sheet Template](#)  
-            (Note: Template link coming soon)
+            ### 1. Try Demo Data
+            Explore the app with sample data to see how it works
         """)
-    # Key Features Section
+        if st.button("🧪 Try Demo Data", use_container_width=True, key="demo_data_button"):
+            st.session_state.use_demo = True
+            st.rerun()
+    with col2:
+        st.markdown("""
+            ### 2. Connect Your Sheet
+            Use your own data with our Google Sheet template
+        """)
+        if st.button("📊 Connect Google Sheet", use_container_width=True, key="connect_sheet_button"):
+            st.info("Coming soon! Currently using our demo data.")
+    with col3:
+        st.markdown("""
+            ### 3. View Template
+            See how to structure your data for Prime Tower
+        """)
+        if st.button("📄 View Sheet Template", use_container_width=True, key="view_template_button"):
+            st.markdown("""
+                [👉 Open Google Sheet Template](#)  
+                (Note: Template link coming soon)
+            """)
     st.markdown("""
-            ## 🔑 Key Features
-            
-            | Feature | Description |
-            |---------|-------------|
-            | **Real-time Tracking** | Monitor trips, costs, and profits as they happen |
-            | **Fleet Analytics** | Compare performance across trucks and routes |
-            | **Fuel Efficiency** | Identify optimization opportunities |
-            | **Maintenance Alerts** | Never miss a service or license renewal |
-            | **Profitability Insights** | Spot your best and worst performing routes |
-        """)
-    
-    # Footer with next steps
+        ## 🔑 Key Features
+        
+        | Feature | Description |
+        |---------|-------------|
+        | **Real-time Tracking** | Monitor trips, costs, and profits as they happen |
+        | **Fleet Analytics** | Compare performance across trucks and routes |
+        | **Fuel Efficiency** | Identify optimization opportunities |
+        | **Maintenance Alerts** | Never miss a service or license renewal |
+        | **Profitability Insights** | Spot your best and worst performing routes |
+    """)
     st.markdown("""
         ---
         Ready to get started? Select an option above or use the navigation menu to explore.

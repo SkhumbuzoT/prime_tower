@@ -90,13 +90,13 @@ def authenticate(username, password):
         st.error("Invalid credentials")
 
 # Initialize session state
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+#if "logged_in" not in st.session_state:
+#    st.session_state.logged_in = False
 
 # --- MAIN APP FLOW ---
-if not st.session_state.logged_in:
-    show_login()
-    st.stop()  # Stop execution if not logged in
+#if not st.session_state.logged_in:
+#    show_login()
+#    st.stop()  # Stop execution if not logged in
 
 # Only show the rest if logged in
 # --- WELCOME PAGE IMPLEMENTATION ---

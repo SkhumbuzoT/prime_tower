@@ -460,38 +460,7 @@ available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m]
 import os
 from pathlib import Path
 
-with st.sidebar:
-    # Improved image loading function with error handling
-    def get_base64_image(image_name):
-        try:
-            # Try multiple possible locations for the image
-            script_dir = Path(__file__).parent
-            possible_paths = [
-                script_dir / image_name,                # Same directory as script
-                script_dir / "prime_tower" / image_name, # Subdirectory
-                script_dir.parent / image_name          # Parent directory
-            ]
-            
-            for path in possible_paths:
-                if path.exists():
-                    with open(path, "rb") as img_file:
-                        return base64.b64encode(img_file.read()).decode()
-            
-            # If image not found, use a placeholder and show error
-            st.error("Logo image not found - using placeholder")
-            # Create a simple placeholder image
-            from PIL import Image, ImageDraw
-            img = Image.new('RGB', (100, 100), color=SECONDARY_NAVY)
-            d = ImageDraw.Draw(img)
-            d.text((10,10), "LOGO", fill=ACCENT_TEAL)
-            buffered = BytesIO()
-            img.save(buffered, format="JPEG")
-            return base64.b64encode(buffered.getvalue()).decode()
-            
-        except Exception as e:
-            st.error(f"Error loading image: {e}")
-            return ""
-            
+with st.sidebar:            
         # Date Filter
         selected_month_display = st.selectbox(
                 "Select Month",

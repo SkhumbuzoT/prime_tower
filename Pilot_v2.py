@@ -1,3 +1,31 @@
+# DEPENDENCIES
+import streamlit as st
+import pandas as pd
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import plotly.express as px
+import plotly.io as pio
+from datetime import datetime, timedelta
+import gspread
+from google.oauth2 import service_account
+from oauth2client.service_account import ServiceAccountCredentials
+import openai
+import requests
+from streamlit_option_menu import option_menu
+import os
+import base64
+from io import BytesIO
+from PIL import Image
+from openai import OpenAI
+import google.generativeai as genai
+
+# BRAND COLORS
+PRIMARY_BG = "#000000"  # Jet Black
+ACCENT_TEAL = "#008080"  # Teal
+ACCENT_GOLD = "#D4AF37"  # Gold
+SECONDARY_NAVY = "#0A1F44"  # Navy Blue
 WHITE = "#FFFFFF"  # White
 LIGHT_GRAY = "#F8F9FA"  # Light Gray for backgrounds
 

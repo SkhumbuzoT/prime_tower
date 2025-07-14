@@ -464,7 +464,7 @@ if selected_truck != "All":
     filtered_ops = filtered_ops[filtered_ops["TruckID"] == selected_truck]
 if selected_route != "All":
     filtered_ops = filtered_ops[filtered_ops["Route Code"] == selected_route]
-filtered_ops = filtered_ops[filtered_ops["Year-Month"] == selected_month
+filtered_ops = filtered_ops[filtered_ops["Year-Month"] == selected_month]
 
 
 # Calculate previous period for delta comparisons

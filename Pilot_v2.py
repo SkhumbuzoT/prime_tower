@@ -504,60 +504,53 @@ if selected == "Home":
         except:
             st.warning("Logo image not found")
     
-    # Main Content Sections
+ # Main Content Sections
+st.markdown("""
+    ## 👤 Who is this for?
+    
+    Prime Tower is designed specifically for:
+    - **Truck Owners** (1–50 trucks)
+    - **Subcontracted Transporters**
+    - **SME Logistics Managers**
+    - **Fleet Operators** who need better visibility
+""")
+
+st.markdown("""
+    ## 🛠️ How to Get Started
+    
+    Choose one of these options to begin:
+""")
+
+# Get Started Options
+col1, col2, col3 = st.columns(3)
+
+with col1:
     st.markdown("""
-        ## 👤 Who is this for?
-        
-        Prime Tower is designed specifically for:
-        - **Truck Owners** (1–50 trucks)
-        - **Subcontracted Transporters**
-        - **SME Logistics Managers**
-        - **Fleet Operators** who need better visibility
+        ### 1. Try Demo Data
+        Explore the app with sample data to see how it works
     """)
-    
-    st.markdown("""
-        ## 🛠️ How to Get Started
-        
-        Choose one of these options to begin:
-    """)
-    
-    # Get Started Options
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("""
-                ### 1. Try Demo Data
-                Explore the app with sample data to see how it works
-            """)
-        if st.button("🧪 Try Demo Data", 
-                        use_container_width=True,
-                        key="demo_data_button"):
+    if st.button("🧪 Try Demo Data", use_container_width=True, key="demo_data_button"):
         st.session_state.use_demo = True
         st.rerun()
-    
-    with col2:
-        st.markdown("""
-                ### 2. Connect Your Sheet
-                Use your own data with our Google Sheet template
-            """)
-        if st.button("📊 Connect Google Sheet", 
-                        use_container_width=True,
-                        key="connect_sheet_button"):
+
+with col2:
+    st.markdown("""
+        ### 2. Connect Your Sheet
+        Use your own data with our Google Sheet template
+    """)
+    if st.button("📊 Connect Google Sheet", use_container_width=True, key="connect_sheet_button"):
         st.info("Coming soon! Currently using our demo data.")
-    
-    with col3:
+
+with col3:
+    st.markdown("""
+        ### 3. View Template
+        See how to structure your data for Prime Tower
+    """)
+    if st.button("📄 View Sheet Template", use_container_width=True, key="view_template_button"):
         st.markdown("""
-                ### 3. View Template
-                See how to structure your data for Prime Tower
-            """)
-        if st.button("📄 View Sheet Template", 
-                        use_container_width=True,
-                        key="view_template_button"):
-        st.markdown("""
-                    [👉 Open Google Sheet Template](#)
-                    (Note: Template link coming soon)
-                """)
-            
+            [👉 Open Google Sheet Template](#)  
+            (Note: Template link coming soon)
+        """)
     # Key Features Section
     st.markdown("""
             ## 🔑 Key Features

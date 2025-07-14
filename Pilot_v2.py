@@ -40,7 +40,7 @@ if "use_demo" not in st.session_state:
 # PAGE CONFIG - Should only be called once per session
 st.set_page_config(
     page_title="PrimeTower Fleet Dashboard",
-    page_icon="prime_tower/prime_chain_favicon_dark_circle.png",
+    page_icon="prime_tower/prime_logo.png",
     layout="wide"
 )
 

@@ -392,10 +392,10 @@ with st.sidebar:
     # Navigation menu
     selected = option_menu(
         menu_title=None,
-        options=["Home", "Cost & Profitability", "Daily Operations", 
-                "Fuel Efficiency", "Maintenance", "Insights"],
+        options=["Home", "Financials", "Operations", 
+                "Fuel", "Maintenance", "Alerts"],
         icons=["house", "cash-stack", "speedometer", 
-              "fuel-pump", "tools", "lightbulb"],
+              "fuel-pump", "tools", "notification"],
         menu_icon="cast",
         default_index=0 if st.session_state.first_visit else 1,
         styles={
@@ -546,7 +546,7 @@ if selected == "Home":
     Need help? [Chat with us on WhatsApp](https://wa.me/YOURNUMBER) or [book a walkthrough](https://calendly.com/YOUR-LINK).
     """)
 
-elif selected == "Cost & Profitability":
+elif selected == "Financials":
         st.markdown("Analyze cost structures and profitability by truck and route")
         
         # Prepare cost data
@@ -719,7 +719,7 @@ elif selected == "Cost & Profitability":
         else:
             st.success("✅ All trips were profitable in the selected period.")
 
-elif selected == "Daily Operations":
+elif selected == "Operations":
     st.markdown("Monitor daily truck activities and performance metrics")
     
     # Prepare operations data
@@ -816,7 +816,7 @@ elif selected == "Daily Operations":
     else:
         st.success("✅ All trucks were active during the selected period.")
 
-elif selected == "Fuel Efficiency":
+elif selected == "Fuel":
     st.markdown("Monitor fuel consumption patterns and identify optimization opportunities")
     
     # Prepare fuel data
@@ -1052,7 +1052,7 @@ elif selected == "Maintenance":
     else:
         st.success("✅ All trucks are within service limits")
 
-elif selected == "Insights":
+elif selected == "Alerts":
     st.markdown("Actionable recommendations to optimize fleet performance")
     
     # Prepare data for insights with error handling

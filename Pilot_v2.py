@@ -66,22 +66,53 @@ st.markdown(f"""
 
 # --- AUTHENTICATION ---
 def show_login():
-    """Display centered login form"""
-    col1, col2, col3 = st.columns([1,2,1])
+    """Display centered, professional login form"""
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        with st.container():
-            st.markdown(f"""
-                <div class="login-box">
-                    <h2 style='color:{ACCENT_TEAL}; margin-bottom: 1.5rem;'>🔐 Prime Tower Login</h2>
-            """, unsafe_allow_html=True)
-            
-            username = st.text_input("Username", key="login_username")
-            password = st.text_input("Password", type="password", key="login_password")
-            
-            if st.button("Login", type="primary", use_container_width=True):
-                authenticate(username, password)
-            
-            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <style>
+                .login-box {{
+                    background-color: #ffffff;
+                    padding: 2.5rem;
+                    border-radius: 1rem;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    text-align: center;
+                }}
+                .login-box h2 {{
+                    color: {ACCENT_TEAL};
+                    margin-bottom: 1.5rem;
+                    font-size: 1.8rem;
+                }}
+                .stTextInput > div > div {{
+                    border-radius: 0.5rem;
+                }}
+                .stButton button {{
+                    border-radius: 0.5rem;
+                    background-color: {ACCENT_TEAL};
+                    color: white;
+                    font-weight: bold;
+                    padding: 0.5rem 1rem;
+                }}
+                .stButton button:hover {{
+                    background-color: #006b6b;
+                }}
+            </style>
+            <div class="login-box">
+                <h2>🔐 Prime Tower Login</h2>
+            """,
+            unsafe_allow_html=True
+        )
+
+        username = st.text_input("Username", key="login_username", placeholder="Enter your username")
+        password = st.text_input("Password", type="password", key="login_password", placeholder="Enter your password")
+
+        login_clicked = st.button("Login", use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        if login_clicked:
+            authenticate(username, password)
 
 def authenticate(username, password):
     """Authenticate user"""
@@ -379,7 +410,7 @@ available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m]
 # Navigation menu - in sidebar
 with st.sidebar:
     try:
-        st.image("prime_tower/prime_logo.png", width=100)
+        st.image("prime_tower/prime_chain_favicon_dark_circle.png", width=100)
     except:
         st.warning("Logo image not found")
     

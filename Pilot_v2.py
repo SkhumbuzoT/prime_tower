@@ -474,79 +474,76 @@ prev_month_filtered = operations[operations["Year-Month"] == prev_month]
 # --- MERGE WITH LOI ---
 merged_ops = pd.merge(filtered_ops, loi, on="Route Code", how="left")
 
-# --- MAIN CONTENT AREA ---
+# --- HOME TAB ---
 if selected == "Home":
     st.session_state.first_visit = False
-    
+
     col1, col2 = st.columns([3, 1])
     with col1:
         st.title("🚀 Welcome to Prime Tower")
         st.markdown("""
-            **Prime Tower** is your real-time dashboard to track trips, costs, claims, and profits — 
-            all from your Google Sheet or our demo data.
+        **Prime Tower** is your real-time dashboard to track trips, fuel, costs, and profitability —  
+        designed for logistics operators who want visibility without complexity.
         """)
     with col2:
         try:
-            st.image("prime_tower/prime_logo.png", width=150)
+            st.image("prime_tower/prime_logo.png", width=160)
         except:
-            st.warning("Logo image not found")
-    
-    # Main Content Sections
+            st.warning("🔺 Logo not found")
+
+    # Audience
+    st.markdown("## 👤 Who is Prime Tower for?")
     st.markdown("""
-        ## 👤 Who is this for?
-        
-        Prime Tower is designed specifically for:
-        - **Truck Owners** (1–50 trucks)
-        - **Subcontracted Transporters**
-        - **SME Logistics Managers**
-        - **Fleet Operators** who need better visibility
+    - 🛻 **Truck Owners** (1–50 trucks)  
+    - 🤝 **Subcontracted Transporters**  
+    - 🧾 **SME Logistics Coordinators**  
+    - 🔍 **Fleet Managers** needing better data  
     """)
-    st.markdown("""
-        ## 🛠️ How to Get Started
-        
-        Choose one of these options to begin:
-    """)
-    
+
+    # Get Started Options
+    st.markdown("## 🛠️ How to Get Started")
+    st.markdown("Pick one of the quick-start options below:")
+
     col1, col2, col3 = st.columns(3)
+
     with col1:
-        st.markdown("""
-            ### 1. Try Demo Data
-            Explore the app with sample data to see how it works
-        """)
-        if st.button("🧪 Try Demo Data", use_container_width=True, key="demo_data_button"):
+        st.markdown("### 🧪 Try Demo Data")
+        st.markdown("Explore the full dashboard with ready-made sample data.")
+        if st.button("Try Demo Data", use_container_width=True, key="demo_data_button"):
             st.session_state.use_demo = True
             st.rerun()
+
     with col2:
-        st.markdown("""
-            ### 2. Connect Your Sheet
-            Use your own data with our Google Sheet template
-        """)
-        if st.button("📊 Connect Google Sheet", use_container_width=True, key="connect_sheet_button"):
-            st.info("Coming soon! Currently using our demo data.")
+        st.markdown("### 📊 Connect Your Google Sheet")
+        st.markdown("Use your real data with our plug-and-play template.")
+        if st.button("Connect Sheet (Coming Soon)", use_container_width=True, key="connect_sheet_button"):
+            st.info("🔧 This feature is under development.")
+
     with col3:
-        st.markdown("""
-            ### 3. View Template
-            See how to structure your data for Prime Tower
-        """)
-        if st.button("📄 View Sheet Template", use_container_width=True, key="view_template_button"):
-            st.markdown("""
-                [👉 Open Google Sheet Template](#)  
-                (Note: Template link coming soon)
-            """)
+        st.markdown("### 📄 View Sheet Template")
+        st.markdown("See how to format your data for best results.")
+        if st.button("Open Template", use_container_width=True, key="view_template_button"):
+            st.markdown("[👉 Download Sheet Template](https://your-template-link.com)")
+
+    # Features Table
+    st.markdown("## 🔑 Key Features at a Glance")
+
     st.markdown("""
-        ## 🔑 Key Features
-        
-        | Feature | Description |
-        |---------|-------------|
-        | **Real-time Tracking** | Monitor trips, costs, and profits as they happen |
-        | **Fleet Analytics** | Compare performance across trucks and routes |
-        | **Fuel Efficiency** | Identify optimization opportunities |
-        | **Maintenance Alerts** | Never miss a service or license renewal |
-        | **Profitability Insights** | Spot your best and worst performing routes |
+    | 🛠 Feature | 💬 Description |
+    |------------|----------------|
+    | 📍 **Trip Tracking** | Real-time visibility into trips, distances, loads |
+    | 💰 **Profit Analysis** | Know your margin per truck, trip, and route |
+    | ⛽ **Fuel Usage Insights** | Spot fuel anomalies and consumption patterns |
+    | 🔧 **Maintenance Reminders** | Get alerts before services and renewals are missed |
+    | 🧮 **Fleet Cost Dashboard** | Compare truck performance and total cost/km |
     """)
+
+    # Footer CTA
     st.markdown("""
-        ---
-        Ready to get started? Select an option above or use the navigation menu to explore.
+    ---
+    ### ✅ Ready to take control?
+    Use the left menu to explore live dashboards or start with demo data above.
+    Need help? [Chat with us on WhatsApp](https://wa.me/YOURNUMBER) or [book a walkthrough](https://calendly.com/YOUR-LINK).
     """)
 
 elif selected == "Cost & Profitability":

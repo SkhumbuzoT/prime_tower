@@ -481,12 +481,6 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.rerun()
 
-
-
-# Set defaults if not submitted
-#selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
-#selected_truck = st.session_state.get("truck_filter", "All")
-#selected_route = st.session_state.get("route_filter", "All")
 selected_month = month_dict[selected_month_display]  # <-- Add this line!
 
 # --- Apply filters ---

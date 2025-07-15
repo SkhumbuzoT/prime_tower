@@ -487,7 +487,7 @@ if selected == "Home":
         """)
     with col2:
         try:
-            st.image("prime_tower/prime_logo.png", width=160)
+            st.image("prime_tower/prime_chain_favicon_dark_circle.png", width=160)
         except:
             st.warning("🔺 Logo not found")
 

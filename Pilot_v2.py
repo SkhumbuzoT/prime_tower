@@ -601,7 +601,8 @@ elif selected == "Financials":
                 y1=route_profit["Revenue (R)"].max()*1.1
             )
             fig3 = apply_chart_style(fig3, "Route Profitability")
-            st.plotly_chart(fig3, use_container_width=True)
+            st.plotly_chart(fig3, 
+            use_container_width=True)
 
 # OPERATIONS TAB
 elif selected == "Operations":

@@ -223,8 +223,8 @@ def apply_chart_style(fig, title, height=400):
     )
     return fig
 
-def kpi_card(title, value, icon=None, emoji=None, delta=None):
-    icon_html = f'<span style="font-size: 1.2rem; margin-right: 8px; color: {ACCENT_TEAL};">{emoji}</span>' if emoji else ""
+def kpi_card(title, value, emoji=None, delta=None):
+    emoji_html = f'<span style="font-size: 1.2rem; margin-right: 8px; color: {ACCENT_TEAL};">{emoji}</span>' if emoji else ""
     delta_html = f"""
         <div style='font-size: 0.9rem; color: {"#2e7d32" if delta >= 0 else "#d32f2f"}; margin-top: 5px;'>
             {"↑" if delta >= 0 else "↓"} {abs(delta):.1f}% vs last period
@@ -233,7 +233,7 @@ def kpi_card(title, value, icon=None, emoji=None, delta=None):
     
     return f"""
         <div class="metric-card">
-            <h3>{icon_html}{title}</h3>
+            <h3>{emoji_html}{title}</h3>
             <p>{value}</p>
             {delta_html}
         </div>
@@ -317,7 +317,11 @@ def load_sample_data():
     return operations, tracker, loi, truck_pak, vcs
 
 # Load sample data
-operations, tracker, loi, truck_pak, vcs = load_sample_data()
+try:
+    operations, tracker, loi, truck_pak, vcs = load_sample_data()
+except Exception as e:
+    st.error(f"Error loading sample data: {str(e)}")
+    st.stop()
 
 # AUTHENTICATION
 def show_login():
@@ -446,7 +450,7 @@ if selected == "Home":
                 Real-time insights for smarter trucking operations
             </p>
         </div>
-    """, unsafe_allow_html=True)
+    """.format(ACCENT_TEAL=ACCENT_TEAL, LIGHT_GRAY=LIGHT_GRAY), unsafe_allow_html=True)
     
     col1, col2 = st.columns([3, 1])
     with col1:
@@ -492,393 +496,425 @@ if selected == "Home":
 
 # FINANCIALS TAB
 elif selected == "Financials":
-    st.markdown("## 📊 Financials Overview")
-    
-    cost_df = filtered_ops.copy()
-    cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
-    cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
-    cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
-    cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
-                                 "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
-    
-    cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
-    cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
-        cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
-    )
-    cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
-    cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
-    
-    total_revenue = cost_df["Revenue (R)"].sum()
-    prev_revenue = prev_month_filtered["Ton Reg"].sum() * loi["Rate per ton"].mean() if not prev_month_filtered.empty else 0
-    revenue_delta = ((total_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue != 0 else 0
-    
-    total_cost = cost_df["Total Cost (R)"].sum()
-    fixed_cost_mean = vcs["Daily Fixed Cost (R/day)"].mean()
-    prev_cost = len(prev_month_filtered) * fixed_cost_mean if not prev_month_filtered.empty else 0
-    cost_delta = ((total_cost - prev_cost) / prev_cost * 100) if prev_cost != 0 else 0
-    
-    avg_cost_per_km = (cost_df["Total Cost (R)"] / cost_df["Distance (km)"]).mean()
-    profitable_trucks = cost_df[cost_df["Profit (R)"] > 0]["TruckID"].nunique()
-    total_trucks = cost_df["TruckID"].nunique()
-    
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.markdown(kpi_card("Total Revenue", f"R{total_revenue:,.2f}", emoji="💰", delta=revenue_delta), unsafe_allow_html=True)
-    with col2:
-        st.markdown(kpi_card("Total Cost", f"R{total_cost:,.2f}", emoji="📉", delta=cost_delta), unsafe_allow_html=True)
-    with col3:
-        st.markdown(kpi_card("Avg Cost per KM", f"R{avg_cost_per_km:,.2f}", emoji="🛣️"), unsafe_allow_html=True)
-    with col4:
-        st.markdown(kpi_card("Profitable Trucks", f"{profitable_trucks}/{total_trucks}", emoji="📈"), unsafe_allow_html=True)
-    
-    st.caption(f"Data from {cost_df['Date'].min().date()} to {cost_df['Date'].max().date()}")
-    
-    with st.container():
-        col1, col2 = st.columns(2)
-        with col1:
-            grouped_cost = cost_df.groupby("TruckID").agg({
-                "Revenue (R)": "sum",
-                "Variable Cost (R)": "sum",
-                "Daily Fixed Cost (R/day)": "sum",
-                "Total Cost (R)": "sum",
-                "Profit (R)": "sum"
-            }).reset_index()
-            df_plot = grouped_cost[["TruckID", "Variable Cost (R)", "Daily Fixed Cost (R/day)"]].melt(
-                id_vars="TruckID",
-                var_name="Cost Type",
-                value_name="Cost (R)"
-            )
-            fig = px.bar(
-                df_plot,
-                x="TruckID",
-                y="Cost (R)",
-                color="Cost Type",
-                barmode="stack",
-                title="Cost Structure by Truck",
-                color_discrete_map=COLOR_MAP
-            )
-            fig = apply_chart_style(fig, "Cost Structure by Truck")
-            st.plotly_chart(fig, use_container_width=True)
+    st.markdown("## �間
+
+System: 📊 Financials Overview")
+
+    try:
+        cost_df = filtered_ops.copy()
+        cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
+        cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
+        cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
+        cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
+                                     "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
         
+        cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
+        cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
+            cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
+        )
+        cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
+        cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
+        
+        total_revenue = cost_df["Revenue (R)"].sum()
+        prev_revenue = prev_month_filtered["Ton Reg"].sum() * loi["Rate per ton"].mean() if not prev_month_filtered.empty else 0
+        revenue_delta = ((total_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue != 0 else 0
+        
+        total_cost = cost_df["Total Cost (R)"].sum()
+        fixed_cost_mean = vcs["Daily Fixed Cost (R/day)"].mean()
+        prev_cost = len(prev_month_filtered) * fixed_cost_mean if not prev_month_filtered.empty else 0
+        cost_delta = ((total_cost - prev_cost) / prev_cost * 100) if prev_cost != 0 else 0
+        
+        avg_cost_per_km = (cost_df["Total Cost (R)"] / cost_df["Distance (km)"]).mean()
+        profitable_trucks = cost_df[cost_df["Profit (R)"] > 0]["TruckID"].nunique()
+        total_trucks = cost_df["TruckID"].nunique()
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.markdown(kpi_card("Total Revenue", f"R{total_revenue:,.2f}", emoji="💰", delta=revenue_delta), unsafe_allow_html=True)
         with col2:
-            fig2 = px.bar(
-                grouped_cost,
-                x="TruckID",
-                y="Profit (R)",
+            st.markdown(kpi_card("Total Cost", f"R{total_cost:,.2f}", emoji="📉", delta=cost_delta), unsafe_allow_html=True)
+        with col3:
+            st.markdown(kpi_card("Avg Cost per KM", f"R{avg_cost_per_km:,.2f}", emoji="🛣️"), unsafe_allow_html=True)
+        with col4:
+            st.markdown(kpi_card("Profitable Trucks", f"{profitable_trucks}/{total_trucks}", emoji="📈"), unsafe_allow_html=True)
+        
+        st.caption(f"Data from {cost_df['Date'].min().date()} to {cost_df['Date'].max().date()}")
+        
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                grouped_cost = cost_df.groupby("TruckID").agg({
+                    "Revenue (R)": "sum",
+                    "Variable Cost (R)": "sum",
+                    "Daily Fixed Cost (R/day)": "sum",
+                    "Total Cost (R)": "sum",
+                    "Profit (R)": "sum"
+                }).reset_index()
+                df_plot = grouped_cost[["TruckID", "Variable Cost (R)", "Daily Fixed Cost (R/day)"]].melt(
+                    id_vars="TruckID",
+                    var_name="Cost Type",
+                    value_name="Cost (R)"
+                )
+                fig = px.bar(
+                    df_plot,
+                    x="TruckID",
+                    y="Cost (R)",
+                    color="Cost Type",
+                    barmode="stack",
+                    title="Cost Structure by Truck",
+                    color_discrete_map=COLOR_MAP
+                )
+                fig = apply_chart_style(fig, "Cost Structure by Truck")
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with col2:
+                fig2 = px.bar(
+                    grouped_cost,
+                    x="TruckID",
+                    y="Profit (R)",
+                    color="Profit (R)",
+                    color_continuous_scale=[(0, "#d32f2f"), (1, ACCENT_TEAL)],
+                    title="Profit by Truck"
+                )
+                fig2 = apply_chart_style(fig2, "Profit by Truck")
+                st.plotly_chart(fig2, use_container_width=True)
+        
+        with st.container():
+            route_profit = cost_df.groupby("Route Code").agg({
+                "Revenue (R)": "mean",
+                "Total Cost (R)": "mean",
+                "Profit (R)": "mean",
+                "Ton Reg": "sum"
+            }).reset_index()
+            fig3 = px.scatter(
+                route_profit,
+                x="Revenue (R)",
+                y="Total Cost (R)",
+                size="Ton Reg",
                 color="Profit (R)",
+                hover_name="Route Code",
+                title="Route Profitability (Bubble Size = Total Tons)",
                 color_continuous_scale=[(0, "#d32f2f"), (1, ACCENT_TEAL)],
-                title="Profit by Truck"
+                size_max=40
             )
-            fig2 = apply_chart_style(fig2, "Profit by Truck")
-            st.plotly_chart(fig2, use_container_width=True)
-    
-    with st.container():
-        route_profit = cost_df.groupby("Route Code").agg({
-            "Revenue (R)": "mean",
-            "Total Cost (R)": "mean",
-            "Profit (R)": "mean",
-            "Ton Reg": "sum"
-        }).reset_index()
-        fig3 = px.scatter(
-            route_profit,
-            x="Revenue (R)",
-            y="Total Cost (R)",
-            size="Ton Reg",
-            color="Profit (R)",
-            hover_name="Route Code",
-            title="Route Profitability (Bubble Size = Total Tons)",
-            color_continuous_scale=[(0, "#d32f2f"), (1, ACCENT_TEAL)],
-            size_max=40
-        )
-        fig3.add_shape(
-            type="line", line=dict(dash="dash", color=WHITE),
-            x0=0, y0=0, x1=route_profit["Revenue (R)"].max()*1.1,
-            y1=route_profit["Revenue (R)"].max()*1.1
-        )
-        fig3 = apply_chart_style(fig3, "Route Profitability")
-        st.plotly_chart(fig3, use_container_width=True)
+            fig3.add_shape(
+                type="line", line=dict(dash="dash", color=WHITE),
+                x0=0, y0=0, x1=route_profit["Revenue (R)"].max()*1.1,
+                y1=route_profit["Revenue (R)"].max()*1.1
+            )
+            fig3 = apply_chart_style(fig3, "Route Profitability")
+            st.plotly_chart(fig3, use_container_width=True)
 
 # OPERATIONS TAB
 elif selected == "Operations":
     st.markdown("## 🚛 Operations Dashboard")
     
-    ops_df = filtered_ops.copy()
-    ops_df = ops_df.merge(loi[["Route Code", "Distance (km)"]], on="Route Code", how="left")
-    ops_df = ops_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
-    
-    active_trucks = ops_df["TruckID"].nunique()
-    total_tons = ops_df[ops_df["Doc Type"] == "Offloading"]["Ton Reg"].sum()
-    total_km = ops_df["Distance (km)"].sum()
-    route_count = ops_df["Route Code"].nunique()
-    
-    prev_active_trucks = prev_month_filtered["TruckID"].nunique() if not prev_month_filtered.empty else 0
-    active_trucks_delta = ((active_trucks - prev_active_trucks) / prev_active_trucks * 100) if prev_active_trucks != 0 else 0
-    prev_tons = prev_month_filtered[prev_month_filtered["Doc Type"] == "Offloading"]["Ton Reg"].sum() if not prev_month_filtered.empty else 0
-    tons_delta = ((total_tons - prev_tons) / prev_tons * 100) if prev_tons != 0 else 0
-    
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.markdown(kpi_card("Active Trucks", active_trucks, emoji="🚚", delta=active_trucks_delta), unsafe_allow_html=True)
-    with col2:
-        st.markdown(kpi_card("Total Tons Moved", f"{total_tons:,.1f}", emoji="📦", delta=tons_delta), unsafe_allow_html=True)
-    with col3:
-        st.markdown(kpi_card("Distance Covered", f"{total_km:,.0f} km", emoji="🛣️"), unsafe_allow_html=True)
-    with col4:
-        st.markdown(kpi_card("Routes Used", route_count, emoji="🗺️"), unsafe_allow_html=True)
-    
-    st.caption(f"Data from {ops_df['Date'].min().date()} to {ops_df['Date'].max().date()}")
-    
-    with st.container():
-        daily_tons = ops_df[ops_df["Doc Type"] == "Offloading"].groupby("Date_only")["Ton Reg"].sum().reset_index()
-        fig1 = px.line(
-            daily_tons,
-            x="Date_only",
-            y="Ton Reg",
-            title="Daily Tons Moved",
-            markers=True,
-            line_shape="spline"
-        )
-        fig1.update_traces(line_color=ACCENT_TEAL)
-        fig1 = apply_chart_style(fig1, "Daily Tons Moved")
-        st.plotly_chart(fig1, use_container_width=True)
-    
-    with st.container():
-        col1, col2 = st.columns(2)
-        with col1:
-            tons_per_truck = ops_df.groupby(["TruckID", "Driver Name"])["Ton Reg"].sum().reset_index()
-            fig2 = px.bar(
-                tons_per_truck,
-                x="TruckID",
-                y="Ton Reg",
-                color="Ton Reg",
-                hover_name="Driver Name",
-                title="Total Tons by Truck",
-                color_continuous_scale=[(0, SECONDARY_NAVY), (1, ACCENT_TEAL)]
-            )
-            fig2 = apply_chart_style(fig2, "Total Tons by Truck")
-            st.plotly_chart(fig2, use_container_width=True)
+    try:
+        ops_df = filtered_ops.copy()
+        if "Distance" in loi.columns:
+            ops_df = ops_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
+        else:
+            st.warning("Column 'Distance' not found in LOI data. Using default distance.")
+            ops_df["Distance"] = 0
         
+        ops_df = ops_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
+        
+        active_trucks = ops_df["TruckID"].nunique()
+        total_tons = ops_df[ops_df["Doc Type"] == "Offloading"]["Ton Reg"].sum()
+        total_km = ops_df["Distance"].sum() if "Distance" in ops_df.columns else 0
+        route_count = ops_df["Route Code"].nunique()
+        
+        prev_active_trucks = prev_month_filtered["TruckID"].nunique() if not prev_month_filtered.empty else 0
+        active_trucks_delta = ((active_trucks - prev_active_trucks) / prev_active_trucks * 100) if prev_active_trucks != 0 else 0
+        prev_tons = prev_month_filtered[prev_month_filtered["Doc Type"] == "Offloading"]["Ton Reg"].sum() if not prev_month_filtered.empty else 0
+        tons_delta = ((total_tons - prev_tons) / prev_tons * 100) if prev_tons != 0 else 0
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.markdown(kpi_card("Active Trucks", active_trucks, emoji="🚚", delta=active_trucks_delta), unsafe_allow_html=True)
         with col2:
-            trips_per_truck = ops_df[ops_df["Doc Type"] == "Offloading"].groupby(["TruckID", "Driver Name"]).size().reset_index(name="Trips")
-            fig3 = px.bar(
-                trips_per_truck,
-                x="TruckID",
-                y="Trips",
-                color="Trips",
-                hover_name="Driver Name",
-                title="Total Trips by Truck",
-                color_continuous_scale=[(0, SECONDARY_NAVY), (1, ACCENT_GOLD)]
+            st.markdown(kpi_card("Total Tons Moved", f"{total_tons:,.1f}", emoji="📦", delta=tons_delta), unsafe_allow_html=True)
+        with col3:
+            st.markdown(kpi_card("Distance Covered", f"{total_km:,.0f} km", emoji="🛣️"), unsafe_allow_html=True)
+        with col4:
+            st.markdown(kpi_card("Routes Used", route_count, emoji="🗺️"), unsafe_allow_html=True)
+        
+        st.caption(f"Data from {ops_df['Date'].min().date()} to {ops_df['Date'].max().date()}")
+        
+        with st.container():
+            daily_tons = ops_df[ops_df["Doc Type"] == "Offloading"].groupby("Date_only")["Ton Reg"].sum().reset_index()
+            fig1 = px.line(
+                daily_tons,
+                x="Date_only",
+                y="Ton Reg",
+                title="Daily Tons Moved",
+                markers=True,
+                line_shape="spline"
             )
-            fig3 = apply_chart_style(fig3, "Total Trips by Truck")
-            st.plotly_chart(fig3, use_container_width=True)
+            fig1.update_traces(line_color=ACCENT_TEAL)
+            fig1 = apply_chart_style(fig1, "Daily Tons Moved")
+            st.plotly_chart(fig1, use_container_width=True)
+        
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                tons_per_truck = ops_df.groupby(["TruckID", "Driver Name"])["Ton Reg"].sum().reset_index()
+                fig2 = px.bar(
+                    tons_per_truck,
+                    x="TruckID",
+                    y="Ton Reg",
+                    color="Ton Reg",
+                    hover_name="Driver Name",
+                    title="Total Tons by Truck",
+                    color_continuous_scale=[(0, SECONDARY_NAVY), (1, ACCENT_TEAL)]
+                )
+                fig2 = apply_chart_style(fig2, "Total Tons by Truck")
+                st.plotly_chart(fig2, use_container_width=True)
+            
+            with col2:
+                trips_per_truck = ops_df[ops_df["Doc Type"] == "Offloading"].groupby(["TruckID", "Driver Name"]).size().reset_index(name="Trips")
+                fig3 = px.bar(
+                    trips_per_truck,
+                    x="TruckID",
+                    y="Trips",
+                    color="Trips",
+                    hover_name="Driver Name",
+                    title="Total Trips by Truck",
+                    color_continuous_scale=[(0, SECONDARY_NAVY), (1, ACCENT_GOLD)]
+                )
+                fig3 = apply_chart_style(fig3, "Total Trips by Truck")
+                st.plotly_chart(fig3, use_container_width=True)
+    
+    except Exception as e:
+        st.error(f"Error in Operations tab: {str(e)}")
 
 # FUEL TAB
 elif selected == "Fuel":
     st.markdown("## ⛽ Fuel Efficiency Dashboard")
     
-    fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
-    fuel_df = fuel_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
-    fuel_df = fuel_df.merge(loi[["Route Code", "Distance (km)"]], on="Route Code", how="left")
-    
-    fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance (km)"] / fuel_df["Ton Reg"]
-    fuel_df["Fuel Cost per km (R/km)"] = fuel_df["Ton Reg"] / fuel_df["Distance (km)"]
-    
-    avg_efficiency = fuel_df["Fuel Efficiency (km/L)"].mean()
-    total_fuel_used = fuel_df["Ton Reg"].sum()
-    fuel_cost_per_km = fuel_df["Fuel Cost per km (R/km)"].mean()
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown(kpi_card("Avg Fuel Efficiency", f"{avg_efficiency:.2f} km/L", emoji="🚀"), unsafe_allow_html=True)
-    with col2:
-        st.markdown(kpi_card("Total Fuel Used", f"{total_fuel_used:,.1f} L", emoji="⛽"), unsafe_allow_html=True)
-    with col3:
-        st.markdown(kpi_card("Avg Fuel Cost per km", f"R{fuel_cost_per_km:.2f}", emoji="💸"), unsafe_allow_html=True)
-    
-    st.caption(f"Data from {fuel_df['Date'].min().date()} to {fuel_df['Date'].max().date()}")
-    
-    with st.container():
-        col1, col2 = st.columns(2)
-        with col1:
-            daily_eff = fuel_df.groupby("Date_only")["Fuel Efficiency (km/L)"].mean().reset_index()
-            fig1 = px.line(
-                daily_eff,
-                x="Date_only",
-                y="Fuel Efficiency (km/L)",
-                title="Daily Fuel Efficiency",
-                markers=True,
-                line_shape="spline"
-            )
-            fig1.update_traces(line_color=ACCENT_TEAL)
-            fig1.add_hline(y=avg_efficiency, line_dash="dash", line_color=ACCENT_GOLD, 
-                          annotation_text=f"Avg: {avg_efficiency:.2f} km/L")
-            fig1 = apply_chart_style(fig1, "Daily Fuel Efficiency")
-            st.plotly_chart(fig1, use_container_width=True)
+    try:
+        fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
+        fuel_df = fuel_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
+        if "Distance" in loi.columns:
+            fuel_df = fuel_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
+        else:
+            st.warning("Column 'Distance' not found in LOI data. Using default distance.")
+            fuel_df["Distance"] = 0
         
+        fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance"] / fuel_df["Ton Reg"]
+        fuel_df["Fuel Cost per km (R/km)"] = fuel_df["Ton Reg"] / fuel_df["Distance"]
+        
+        avg_efficiency = fuel_df["Fuel Efficiency (km/L)"].mean()
+        total_fuel_used = fuel_df["Ton Reg"].sum()
+        fuel_cost_per_km = fuel_df["Fuel Cost per km (R/km)"].mean()
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown(kpi_card("Avg Fuel Efficiency", f"{avg_efficiency:.2f} km/L", emoji="🚀"), unsafe_allow_html=True)
         with col2:
-            truck_eff = fuel_df.groupby(["TruckID", "Driver Name"])["Fuel Efficiency (km/L)"].mean().reset_index()
-            fig2 = px.bar(
-                truck_eff,
-                x="TruckID",
-                y="Fuel Efficiency (km/L)",
-                color="Fuel Efficiency (km/L)",
-                hover_name="Driver Name",
-                title="Fuel Efficiency by Truck",
-                color_continuous_scale=[(0, "#d32f2f"), (0.5, "#ffa726"), (1, ACCENT_TEAL)]
-            )
-            fig2 = apply_chart_style(fig2, "Fuel Efficiency by Truck")
-            st.plotly_chart(fig2, use_container_width=True)
+            st.markdown(kpi_card("Total Fuel Used", f"{total_fuel_used:,.1f} L", emoji="⛽"), unsafe_allow_html=True)
+        with col3:
+            st.markdown(kpi_card("Avg Fuel Cost per km", f"R{fuel_cost_per_km:.2f}", emoji="💸"), unsafe_allow_html=True)
+        
+        st.caption(f"Data from {fuel_df['Date'].min().date()} to {fuel_df['Date'].max().date()}")
+        
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                daily_eff = fuel_df.groupby("Date_only")["Fuel Efficiency (km/L)"].mean().reset_index()
+                fig1 = px.line(
+                    daily_eff,
+                    x="Date_only",
+                    y="Fuel Efficiency (km/L)",
+                    title="Daily Fuel Efficiency",
+                    markers=True,
+                    line_shape="spline"
+                )
+                fig1.update_traces(line_color=ACCENT_TEAL)
+                fig1.add_hline(y=avg_efficiency, line_dash="dash", line_color=ACCENT_GOLD, 
+                              annotation_text=f"Avg: {avg_efficiency:.2f} km/L")
+                fig1 = apply_chart_style(fig1, "Daily Fuel Efficiency")
+                st.plotly_chart(fig1, use_container_width=True)
+            
+            with col2:
+                truck_eff = fuel_df.groupby(["TruckID", "Driver Name"])["Fuel Efficiency (km/L)"].mean().reset_index()
+                fig2 = px.bar(
+                    truck_eff,
+                    x="TruckID",
+                    y="Fuel Efficiency (km/L)",
+                    color="Fuel Efficiency (km/L)",
+                    hover_name="Driver Name",
+                    title="Fuel Efficiency by Truck",
+                    color_continuous_scale=[(0, "#d32f2f"), (0.5, "#ffa726"), (1, ACCENT_TEAL)]
+                )
+                fig2 = apply_chart_style(fig2, "Fuel Efficiency by Truck")
+                st.plotly_chart(fig2, use_container_width=True)
+    
+    except Exception as e:
+        st.error(f"Error in Fuel tab: {str(e)}")
 
 # MAINTENANCE TAB
 elif selected == "Maintenance":
     st.markdown("## 🔧 Maintenance Dashboard")
     
-    maint_df = truck_pak.copy()
-    maint_df["KM Since Service"] = maint_df["Current Mileage"] - maint_df["Last Service"]
-    maint_df["Service Due"] = maint_df["KM Since Service"] > 10000
-    
-    today = pd.to_datetime("today").normalize()
-    expiry_fields = {
-        "Vehicle License Expiry": "License Expiry",
-        "Driver License Expiry": "Driver License",
-        "GIT Insurance Expiry": "GIT Insurance"
-    }
-    
-    for col, label in expiry_fields.items():
-        maint_df[f"{label} Days Left"] = (maint_df[col] - today).dt.days
-        maint_df[f"{label} Expiring"] = maint_df[f"{label} Days Left"].le(30)
-    
-    overdue_services = maint_df["Service Due"].sum()
-    license_expiring = maint_df["License Expiry Expiring"].sum()
-    driver_expiring = maint_df["Driver License Expiring"].sum()
-    git_expiring = maint_df["GIT Insurance Expiring"].sum()
-    
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.markdown(kpi_card("Overdue Services", int(overdue_services), emoji="🔧"), unsafe_allow_html=True)
-    with col2:
-        st.markdown(kpi_card("Vehicle Licenses Expiring", license_expiring, emoji="🚗"), unsafe_allow_html=True)
-    with col3:
-        st.markdown(kpi_card("Driver Licenses Expiring", driver_expiring, emoji="🧑‍✈️"), unsafe_allow_html=True)
-    with col4:
-        st.markdown(kpi_card("GIT Insurance Expiring", git_expiring, emoji="🛡️"), unsafe_allow_html=True)
-    
-    with st.container():
-        col1, col2 = st.columns(2)
-        with col1:
-            fig1 = px.bar(
-                maint_df.sort_values("KM Since Service", ascending=False),
-                x="TruckID",
-                y="KM Since Service",
-                color="Service Due",
-                color_discrete_map=COLOR_MAP,
-                title="KM Since Last Service",
-                hover_data=["Current Mileage", "Last Service"]
-            )
-            fig1.add_hline(y=10000, line_dash="dash", line_color=ACCENT_GOLD, 
-                          annotation_text="Service Threshold")
-            fig1 = apply_chart_style(fig1, "KM Since Last Service")
-            st.plotly_chart(fig1, use_container_width=True)
+    try:
+        maint_df = truck_pak.copy()
+        maint_df["KM Since Service"] = maint_df["Current Mileage"] - maint_df["Last Service"]
+        maint_df["Service Due"] = maint_df["KM Since Service"] > 10000
         
+        today = pd.to_datetime("today").normalize()
+        expiry_fields = {
+            "Vehicle License Expiry": "License Expiry",
+            "Driver License Expiry": "Driver License",
+            "GIT Insurance Expiry": "GIT Insurance"
+        }
+        
+        for col, label in expiry_fields.items():
+            maint_df[f"{label} Days Left"] = (maint_df[col] - today).dt.days
+            maint_df[f"{label} Expiring"] = maint_df[f"{label} Days Left"].le(30)
+        
+        overdue_services = maint_df["Service Due"].sum()
+        license_expiring = maint_df["License Expiry Expiring"].sum()
+        driver_expiring = maint_df["Driver License Expiring"].sum()
+        git_expiring = maint_df["GIT Insurance Expiring"].sum()
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.markdown(kpi_card("Overdue Services", int(overdue_services), emoji="🔧"), unsafe_allow_html=True)
         with col2:
-            expiring_df = maint_df[
-                maint_df["License Expiry Expiring"] |
-                maint_df["Driver License Expiring"] |
-                maint_df["GIT Insurance Expiring"]
-            ]
-            if not expiring_df.empty:
-                date_cols = ["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]
-                days_matrix = expiring_df[date_cols].apply(lambda col: (col - today).dt.days)
-                days_matrix = days_matrix.clip(lower=0, upper=30)
-                fig2 = go.Figure(data=go.Heatmap(
-                    z=days_matrix.values,
-                    x=days_matrix.columns,
-                    y=expiring_df["TruckID"],
-                    colorscale=[[0, "darkred"], [0.2, "orangered"], [0.5, "orange"], [0.8, "yellow"], [1, "lightyellow"]],
-                    colorbar=dict(title="Days to Expiry", tickvals=[0, 10, 20, 30], ticktext=["0 (Expired)", "10", "20", "30+"]),
-                    hoverongaps=False,
-                    hovertemplate="TruckID %{y}<br>%{x}: %{z} days"
-                ))
-                fig2 = apply_chart_style(fig2, "Expiring Licenses & Insurance")
-                st.plotly_chart(fig2, use_container_width=True)
-            else:
-                st.success("✅ No licenses or insurance expiring soon.")
+            st.markdown(kpi_card("Vehicle Licenses Expiring", license_expiring, emoji="🚗"), unsafe_allow_html=True)
+        with col3:
+            st.markdown(kpi_card("Driver Licenses Expiring", driver_expiring, emoji="🧑‍✈️"), unsafe_allow_html=True)
+        with col4:
+            st.markdown(kpi_card("GIT Insurance Expiring", git_expiring, emoji="🛡️"), unsafe_allow_html=True)
+        
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                fig1 = px.bar(
+                    maint_df.sort_values("KM Since Service", ascending=False),
+                    x="TruckID",
+                    y="KM Since Service",
+                    color="Service Due",
+                    color_discrete_map=COLOR_MAP,
+                    title="KM Since Last Service",
+                    hover_data=["Current Mileage", "Last Service"]
+                )
+                fig1.add_hline(y=10000, line_dash="dash", line_color=ACCENT_GOLD, 
+                              annotation_text="Service Threshold")
+                fig1 = apply_chart_style(fig1, "KM Since Last Service")
+                st.plotly_chart(fig1, use_container_width=True)
+            
+            with col2:
+                expiring_df = maint_df[
+                    maint_df["License Expiry Expiring"] |
+                    maint_df["Driver License Expiring"] |
+                    maint_df["GIT Insurance Expiring"]
+                ]
+                if not expiring_df.empty:
+                    date_cols = ["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]
+                    days_matrix = expiring_df[date_cols].apply(lambda col: (col - today).dt.days)
+                    days_matrix = days_matrix.clip(lower=0, upper=30)
+                    fig2 = go.Figure(data=go.Heatmap(
+                        z=days_matrix.values,
+                        x=days_matrix.columns,
+                        y=expiring_df["TruckID"],
+                        colorscale=[[0, "darkred"], [0.2, "orangered"], [0.5, "orange"], [0.8, "yellow"], [1, "lightyellow"]],
+                        colorbar=dict(title="Days to Expiry", tickvals=[0, 10, 20, 30], ticktext=["0 (Expired)", "10", "20", "30+"]),
+                        hoverongaps=False,
+                        hovertemplate="TruckID %{y}<br>%{x}: %{z} days"
+                    ))
+                    fig2 = apply_chart_style(fig2, "Expiring Licenses & Insurance")
+                    st.plotly_chart(fig2, use_container_width=True)
+                else:
+                    st.success("✅ No licenses or insurance expiring soon.")
+    
+    except Exception as e:
+        st.error(f"Error in Maintenance tab: {str(e)}")
 
 # ALERTS TAB
 elif selected == "Alerts":
     st.markdown("## 🔔 Actionable Alerts")
     
-    cost_df = filtered_ops.copy()
-    cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
-    cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
-    cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
-    cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
-                                 "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
-    
-    cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
-    cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
-        cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
-    )
-    cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
-    cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
-    
-    st.markdown("### 🌟 Top Performers")
-    col1, col2 = st.columns(2)
-    with col1:
-        profitable_truck = cost_df.groupby(["TruckID", "Driver Name"])["Profit (R)"].sum().nlargest(1).reset_index()
-        if not profitable_truck.empty:
-            truck = profitable_truck.iloc[0]
+    try:
+        cost_df = filtered_ops.copy()
+        cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
+        cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
+        cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
+        cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
+                                     "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
+        
+        cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
+        cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
+            cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
+        )
+        cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
+        cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
+        
+        st.markdown("### 🌟 Top Performers")
+        col1, col2 = st.columns(2)
+        with col1:
+            profitable_truck = cost_df.groupby(["TruckID", "Driver Name"])["Profit (R)"].sum().nlargest(1).reset_index()
+            if not profitable_truck.empty:
+                truck = profitable_truck.iloc[0]
+                st.markdown(f"""
+                    <div class="metric-card">
+                        <h3>🚛 Most Profitable Truck</h3>
+                        <p>{truck['TruckID']} ({truck['Driver Name']})</p>
+                        <p style='font-size: 1.5rem; color: {ACCENT_TEAL};'>R{truck['Profit (R)']:,.2f}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+        
+        with col2:
+            efficient_route = cost_df.groupby("Route Code")["Profit (R)"].mean().nlargest(1).reset_index()
+            if not efficient_route.empty:
+                route = efficient_route.iloc[0]
+                st.markdown(f"""
+                    <div class="metric-card">
+                        <h3>🛣️ Most Profitable Route</h3>
+                        <p>{route['Route Code']}</p>
+                        <p style='font-size: 1.5rem; color: {ACCENT_TEAL};'>R{route['Profit (R)']:,.2f}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+        
+        st.markdown("### ⚡ Optimization Opportunities")
+        fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
+        if "Distance" in loi.columns:
+            fuel_df = fuel_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
+        else:
+            fuel_df["Distance"] = 0
+        fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance"] / fuel_df["Ton Reg"]
+        inefficient_trucks = fuel_df.groupby(["TruckID", "Driver Name"])["Fuel Efficiency (km/L)"].mean().nsmallest(3).reset_index()
+        
+        if not inefficient_trucks.empty:
             st.markdown(f"""
                 <div class="metric-card">
-                    <h3>🚛 Most Profitable Truck</h3>
-                    <p>{truck['TruckID']} ({truck['Driver Name']})</p>
-                    <p style='font-size: 1.5rem; color: {ACCENT_TEAL};'>R{truck['Profit (R)']:,.2f}</p>
+                    <h3>⛽ Least Fuel-Efficient Trucks</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr style='border-bottom: 1px solid {ACCENT_TEAL};'>
+                            <th style='text-align: left; padding: 8px;'>Truck</th>
+                            <th style='text-align: left; padding: 8px;'>Driver</th>
+                            <th style='text-align: right; padding: 8px;'>Efficiency</th>
+                        </tr>
+                        {"".join([f"<tr><td style='padding: 8px;'>{row['TruckID']}</td><td style='padding: 8px;'>{row['Driver Name']}</td><td style='padding: 8px; text-align: right;'>{row['Fuel Efficiency (km/L)']:.2f} km/L</td></tr>" for _, row in inefficient_trucks.iterrows()])}
+                    </table>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        loss_routes = cost_df.groupby("Route Code")["Profit (R)"].sum().nsmallest(3).reset_index()
+        if not loss_routes.empty:
+            st.markdown(f"""
+                <div class="metric-card">
+                    <h3>🔴 Top Loss-Making Routes</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr style='border-bottom: 1px solid {ACCENT_TEAL};'>
+                            <th style='text-align: left; padding: 8px;'>Route</th>
+                            <th style='text-align: right; padding: 8px;'>Loss</th>
+                        </tr>
+                        {"".join([f"<tr><td style='padding: 8px;'>{row['Route Code']}</td><td style='padding: 8px; text-align: right;'>R{abs(row['Profit (R)']):,.2f}</td></tr>" for _, row in loss_routes.iterrows()])}
+                    </table>
                 </div>
             """, unsafe_allow_html=True)
     
-    with col2:
-        efficient_route = cost_df.groupby("Route Code")["Profit (R)"].mean().nlargest(1).reset_index()
-        if not efficient_route.empty:
-            route = efficient_route.iloc[0]
-            st.markdown(f"""
-                <div class="metric-card">
-                    <h3>🛣️ Most Profitable Route</h3>
-                    <p>{route['Route Code']}</p>
-                    <p style='font-size: 1.5rem; color: {ACCENT_TEAL};'>R{route['Profit (R)']:,.2f}</p>
-                </div>
-            """, unsafe_allow_html=True)
-    
-    st.markdown("### ⚡ Optimization Opportunities")
-    fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
-    fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance (km)"] / fuel_df["Ton Reg"]
-    inefficient_trucks = fuel_df.groupby(["TruckID", "Driver Name"])["Fuel Efficiency (km/L)"].mean().nsmallest(3).reset_index()
-    
-    if not inefficient_trucks.empty:
-        st.markdown(f"""
-            <div class="metric-card">
-                <h3>⛽ Least Fuel-Efficient Trucks</h3>
-                <table style='width: 100%; border-collapse: collapse;'>
-                    <tr style='border-bottom: 1px solid {ACCENT_TEAL};'>
-                        <th style='text-align: left; padding: 8px;'>Truck</th>
-                        <th style='text-align: left; padding: 8px;'>Driver</th>
-                        <th style='text-align: right; padding: 8px;'>Efficiency</th>
-                    </tr>
-                    {"".join([f"<tr><td style='padding: 8px;'>{row['TruckID']}</td><td style='padding: 8px;'>{row['Driver Name']}</td><td style='padding: 8px; text-align: right;'>{row['Fuel Efficiency (km/L)']:.2f} km/L</td></tr>" for _, row in inefficient_trucks.iterrows()])}
-                </table>
-            </div>
-        """, unsafe_allow_html=True)
-    
-    loss_routes = cost_df.groupby("Route Code")["Profit (R)"].sum().nsmallest(3).reset_index()
-    if not loss_routes.empty:
-        st.markdown(f"""
-            <div class="metric-card">
-                <h3>🔴 Top Loss-Making Routes</h3>
-                <table style='width: 100%; border-collapse: collapse;'>
-                    <tr style='border-bottom: 1px solid {ACCENT_TEAL};'>
-                        <th style='text-align: left; padding: 8px;'>Route</th>
-                        <th style='text-align: right; padding: 8px;'>Loss</th>
-                    </tr>
-                    {"".join([f"<tr><td style='padding: 8px;'>{row['Route Code']}</td><td style='padding: 8px; text-align: right;'>R{abs(row['Profit (R)']):,.2f}</td></tr>" for _, row in loss_routes.iterrows()])}
-                </table>
-            </div>
-        """, unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Error in Alerts tab: {str(e)}")

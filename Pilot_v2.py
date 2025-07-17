@@ -574,13 +574,13 @@ elif selected == "Financials":
         # Display KPIs
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.markdown(kpi_card("Total Revenue", f"R{total_revenue:,.2f}", emoji="💰", delta=revenue_delta), unsafe_allow_html=True)
+            st.markdown(kpi_card("Total Revenue", f"R{total_revenue:,.2f}", emoji="💰"), unsafe_allow_html=True)
         with col2:
-            st.markdown(kpi_card("Total Cost", f"R{total_cost:,.2f}", emoji="📉", delta=cost_delta), unsafe_allow_html=True)
+            st.markdown(kpi_card("Total Cost", f"R{total_cost:,.2f}", emoji="📉"), unsafe_allow_html=True)
         with col3:
-            st.markdown(kpi_card("Avg Cost per KM", f"R{avg_cost_per_km:,.2f}", emoji="🛣️"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Avg Cost/km", f"R{avg_cost_per_km:,.2f}", emoji="🛣️"), unsafe_allow_html=True)
         with col4:
-            st.markdown(kpi_card("Profitable Trucks", f"{profitable_trucks}/{total_trucks}", emoji="📈"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Profit Margin", f"{profit_margin:.1%}", emoji="📈"), unsafe_allow_html=True)
         
         st.caption(f"Data from {cost_df['Date'].min().date()} to {cost_df['Date'].max().date()}")
         
@@ -695,13 +695,13 @@ elif selected == "Operations":
         # Display KPIs
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.markdown(kpi_card("Active Trucks", active_trucks, emoji="🚚", delta=active_trucks_delta), unsafe_allow_html=True)
+            st.markdown(kpi_card("Active Trucks", active_trucks, emoji="🚚"), unsafe_allow_html=True)
         with col2:
-            st.markdown(kpi_card("Total Tons Moved", f"{total_tons:,.1f}", emoji="📦", delta=tons_delta), unsafe_allow_html=True)
+            st.markdown(kpi_card("Total Tons", f"{total_tons:,.1f}", emoji="📦"), unsafe_allow_html=True)
         with col3:
-            st.markdown(kpi_card("Distance Covered", f"{total_km:,.0f} km", emoji="🛣️"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Distance", f"{total_km:,.0f} km", emoji="🛣️"), unsafe_allow_html=True)
         with col4:
-            st.markdown(kpi_card("Routes Used", route_count, emoji="🗺️"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Avg Tons/Truck", f"{avg_tons_per_truck:,.1f}", emoji="⚖️"), unsafe_allow_html=True)
         
         st.caption(f"Data from {ops_df['Date'].min().date()} to {ops_df['Date'].max().date()}")
         
@@ -779,13 +779,16 @@ elif selected == "Fuel":
         fuel_cost_per_km = fuel_df["Fuel Cost per km (R/km)"].mean()
         
         # Display KPIs
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.markdown(kpi_card("Avg Fuel Efficiency", f"{avg_efficiency:.2f} km/L", emoji="🚀"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Avg Efficiency", f"{avg_efficiency:.2f} km/L", emoji="🚀"), unsafe_allow_html=True)
         with col2:
-            st.markdown(kpi_card("Total Fuel Used", f"{total_fuel_used:,.1f} L", emoji="⛽"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Total Fuel", f"{total_fuel_used:,.1f} L", emoji="⛽"), unsafe_allow_html=True)
         with col3:
-            st.markdown(kpi_card("Avg Fuel Cost per km", f"R{fuel_cost_per_km:.2f}", emoji="💸"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Fuel Cost/km", f"R{fuel_cost_per_km:.2f}", emoji="💸"), unsafe_allow_html=True)
+        with col4:
+            st.markdown(kpi_card("Best Truck", f"{best_truck_eff:.2f} km/L", emoji="🏆"), unsafe_allow_html=True)
+        
         
         st.caption(f"Data from {fuel_df['Date'].min().date()} to {fuel_df['Date'].max().date()}")
         
@@ -863,13 +866,13 @@ elif selected == "Maintenance":
         # Display KPIs
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.markdown(kpi_card("Overdue Services", int(overdue_services), emoji="🔧"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Due Services", int(overdue_services), emoji="🔧"), unsafe_allow_html=True)
         with col2:
-            st.markdown(kpi_card("Vehicle Licenses Expiring", license_expiring, emoji="🚗"), unsafe_allow_html=True)
+            st.markdown(kpi_card("License Expiry", license_expiring, emoji="📝"), unsafe_allow_html=True)
         with col3:
-            st.markdown(kpi_card("Driver Licenses Expiring", driver_expiring, emoji="🧑‍✈️"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Driver License", driver_expiring, emoji="👤"), unsafe_allow_html=True)
         with col4:
-            st.markdown(kpi_card("GIT Insurance Expiring", git_expiring, emoji="🛡️"), unsafe_allow_html=True)
+            st.markdown(kpi_card("Insurance", git_expiring, emoji="🛡️"), unsafe_allow_html=True)
         
         # Maintenance charts
         with st.container():

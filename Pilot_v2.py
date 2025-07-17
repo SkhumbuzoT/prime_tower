@@ -841,7 +841,7 @@ elif selected == "Maintenance":
     try:
         # Prepare maintenance data
         maint_df = truck_pak.copy()
-        maint_df["KM Since Service"] = maint_df["Current Mileage"] - maint_df["Last Service"]
+        maint_df["KM Since Service"] = maint_df["Current Mileage"] - maint_df["Last Service Mileage"]
         maint_df["Service Due"] = maint_df["KM Since Service"] > 10000
         
         today = pd.to_datetime("today").normalize()
@@ -884,7 +884,7 @@ elif selected == "Maintenance":
                     color="Service Due",
                     color_discrete_map=COLOR_MAP,
                     title="KM Since Last Service",
-                    hover_data=["Current Mileage", "Last Service"]
+                    hover_data=["Current Mileage", "Last Service Mileage"]
                 )
                 fig1.add_hline(
                     y=10000,

@@ -853,6 +853,9 @@ elif selected == "Maintenance":
         
         # Calculate days until expiry for various documents
         for col, label in expiry_fields.items():
+            # Ensure we're working with datetime objects
+            maint_df[col] = pd.to_datetime(maint_df[col])
+            # Calculate days left (handle NaT values)
             maint_df[f"{label} Days Left"] = (maint_df[col] - today).dt.days
             maint_df[f"{label} Expiring"] = maint_df[f"{label} Days Left"].le(30)
         
@@ -896,6 +899,7 @@ elif selected == "Maintenance":
                 st.plotly_chart(fig1, use_container_width=True)
             
             with col2:
+                # Filter for expiring documents only
                 expiring_df = maint_df[
                     maint_df["License Expiry Expiring"] |
                     maint_df["Driver License Expiring"] |
@@ -904,7 +908,11 @@ elif selected == "Maintenance":
                 
                 if not expiring_df.empty:
                     date_cols = ["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]
-                    days_matrix = expiring_df[date_cols].apply(lambda col: (col - today).dt.days)
+                    # Calculate days left for each document type
+                    days_matrix = expiring_df[date_cols].apply(
+                        lambda col: (col - today).dt.days if pd.api.types.is_datetime64_any_dtype(col) 
+                        else pd.to_datetime(col) - today
+                    )
                     days_matrix = days_matrix.clip(lower=0, upper=30)
                     
                     fig2 = go.Figure(data=go.Heatmap(
@@ -926,7 +934,9 @@ elif selected == "Maintenance":
                     st.success("✅ No licenses or insurance expiring soon.")
     
     except Exception as e:
-        st.error(f"Error in Maintenance tab: {str(e)}")
+        st.error(f"Error in Maintenance tab: {str(e)}")        
+
+
 
 # ALERTS TAB
 elif selected == "Alerts":

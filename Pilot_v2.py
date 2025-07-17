@@ -272,57 +272,61 @@ def kpi_card(title, value, emoji=None):
 
 @st.cache_data
 def load_data_from_gsheet():
-    # Create a connection to Google Sheets
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive"
-    ]
-    
-    # Load credentials from Streamlit secrets
-    creds_dict = {
-        "type": st.secrets["gcp_service_account"]["type"],
-        "project_id": st.secrets["gcp_service_account"]["project_id"],
-        "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
-        "private_key": st.secrets["gcp_service_account"]["private_key"],
-        "client_email": st.secrets["gcp_service_account"]["client_email"],
-        "client_id": st.secrets["gcp_service_account"]["client_id"],
-        "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
-        "token_uri": st.secrets["gcp_service_account"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
-    }
-    
-    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
-    client = gspread.authorize(creds)
-    
-    # Helper function to load a worksheet as DataFrame
-    def get_worksheet_df(sheet_name):
-        sheet = client.open_by_key(st.secrets["gsheet_id"]).worksheet(sheet_name)
-        return pd.DataFrame(sheet.get_all_records())
-    
-    # Load all worksheets
-    return (
-        get_worksheet_df("operations"),
-        get_worksheet_df("tracker"),
-        get_worksheet_df("loi"),
-        get_worksheet_df("truck_pak"),
-        get_worksheet_df("vehicle_cost_schedule")
-    )
+    if st.session_state.get("use_demo", False):
+        @st.cache_data
+        def load_demo_data():
+            operations = pd.read_csv("data/demo_operations.csv")
+            tracker = pd.read_csv("data/demo_tracker.csv")
+            loi = pd.read_csv("data/demo_loi.csv")
+            truck_pak = pd.read_csv("data/demo_truck_pak.csv")
+            vcs = pd.read_csv("data/demo_vcs.csv")
+            return operations, tracker, loi, truck_pak, vcs
+        return load_demo_data()
+    else:
+        scope = [
+            "https://spreadsheets.google.com/feeds",
+            "https://www.googleapis.com/auth/drive"
+        ]
+        
+        creds_dict = {
+            "type": st.secrets["gcp_service_account"]["type"],
+            "project_id": st.secrets["gcp_service_account"]["project_id"],
+            "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
+            "private_key": st.secrets["gcp_service_account"]["private_key"],
+            "client_email": st.secrets["gcp_service_account"]["client_email"],
+            "client_id": st.secrets["gcp_service_account"]["client_id"],
+            "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
+            "token_uri": st.secrets["gcp_service_account"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
+        }
+        
+        creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
+        client = gspread.authorize(creds)
+        
+        def get_worksheet_df(sheet_name):
+            return pd.DataFrame(client.open_by_key("1QYHK9DoiBjJPLrQlovHxDkRuv4xImwtzbokul_rOdjI")
+                              .worksheet(sheet_name).get_all_records())
+        
+        return (
+            get_worksheet_df("operations"),
+            get_worksheet_df("tracker"),
+            get_worksheet_df("loi"),
+            get_worksheet_df("truck_pak"),
+            get_worksheet_df("vehicle_cost_schedule")
+        )
 
-# Then replace the data loading section with:
-try:
-    operations, tracker, loi, truck_pak, vcs = load_data_from_gsheet()
-    
-    # Convert date columns (add any other needed conversions)
-    operations["Date"] = pd.to_datetime(operations["Date"])
-    truck_pak["Vehicle License Expiry"] = pd.to_datetime(truck_pak["Vehicle License Expiry"])
-    truck_pak["Driver License Expiry"] = pd.to_datetime(truck_pak["Driver License Expiry"])
-    truck_pak["Last Service Date"] = pd.to_datetime(truck_pak["Last Service Date"])
-    truck_pak["GIT Insurance Expiry"] = pd.to_datetime(truck_pak["GIT Insurance Expiry"])
-    
-except Exception as e:
-    st.error(f"Error loading data from Google Sheets: {str(e)}")
-    st.stop()
+# Load the data
+operations, tracker, loi, truck_pak, vcs = load_data_from_gsheet()
+
+# --- DATA PREP ---
+operations["Date"] = pd.to_datetime(operations["Date"])
+operations["Date_only"] = operations["Date"].dt.date
+operations["Year-Month"] = operations["Date"].dt.to_period("M").astype(str)
+operations["Month_Display"] = operations["Date"].dt.strftime("%B %Y")
+month_mapping = operations[["Year-Month", "Month_Display"]].drop_duplicates()
+month_dict = dict(zip(month_mapping["Month_Display"], month_mapping["Year-Month"]))
+available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m])
 
 # =============================================================================
 # AUTHENTICATION

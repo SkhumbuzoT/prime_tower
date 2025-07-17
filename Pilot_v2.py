@@ -680,9 +680,9 @@ elif selected == "Operations":
         # Prepare operations data
         ops_df = filtered_ops.copy()
         if "Distance" in loi.columns:
-            ops_df = ops_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
+            ops_df = ops_df.merge(loi[["Route Code", "Distance (km)"]], on="Route Code", how="left")
         else:
-            st.warning("Column 'Distance' not found in LOI data. Using default distance.")
+            st.warning("Column 'Distance (km)' not found in LOI data. Using default distance.")
             ops_df["Distance"] = 0
         
         ops_df = ops_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
@@ -690,7 +690,7 @@ elif selected == "Operations":
         # Calculate KPIs
         active_trucks = ops_df["TruckID"].nunique()
         total_tons = ops_df[ops_df["Doc Type"] == "Offloading"]["Ton Reg"].sum()
-        total_km = ops_df["Distance"].sum() if "Distance" in ops_df.columns else 0
+        total_km = ops_df["Distance (km)"].sum() if "Distance" in ops_df.columns else 0
         route_count = ops_df["Route Code"].nunique()
         
         prev_active_trucks = prev_month_filtered["TruckID"].nunique() if not prev_month_filtered.empty else 0
@@ -769,15 +769,15 @@ elif selected == "Fuel":
         fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
         fuel_df = fuel_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
         
-        if "Distance" in loi.columns:
-            fuel_df = fuel_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
+        if "Distance (km)" in loi.columns:
+            fuel_df = fuel_df.merge(loi[["Route Code", "Distance (km)"]], on="Route Code", how="left")
         else:
-            st.warning("Column 'Distance' not found in LOI data. Using default distance.")
+            st.warning("Column 'Distance (km)' not found in LOI data. Using default distance.")
             fuel_df["Distance"] = 0
         
         # Calculate fuel metrics
-        fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance"] / fuel_df["Ton Reg"]
-        fuel_df["Fuel Cost per km (R/km)"] = fuel_df["Ton Reg"] / fuel_df["Distance"]
+        fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance (km)"] / fuel_df["Ton Reg"]
+        fuel_df["Fuel Cost per km (R/km)"] = fuel_df["Ton Reg"] / fuel_df["Distance (km)"]
         
         avg_efficiency = fuel_df["Fuel Efficiency (km/L)"].mean()
         total_fuel_used = fuel_df["Ton Reg"].sum()

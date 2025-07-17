@@ -496,8 +496,8 @@ if selected == "Home":
 
 # FINANCIALS TAB
 elif selected == "Financials":
-    st.markdown("##System: 📊 Financials Overview")
-
+    st.markdown("## 📊 Financials Overview")
+    
     try:
         cost_df = filtered_ops.copy()
         cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
@@ -597,12 +597,14 @@ elif selected == "Financials":
             )
             fig3.add_shape(
                 type="line", line=dict(dash="dash", color=WHITE),
-                x0=0, y0=0, x1=route_profit["Revenue (R)"].max()*1.1,
-                y1=route_profit["Revenue (R)"].max()*1.1
+                x0=0, y0=0, x1=route_profit["Revenue (R)".max()*1.1,
+                y1=route_profit["Revenue (R)".max()*1.1
             )
             fig3 = apply_chart_style(fig3, "Route Profitability")
-            st.plotly_chart(fig3, 
-            use_container_width=True)
+            st.plotly_chart(fig3, use_container_width=True)
+            
+    except Exception as e:
+        st.error(f"Error in Financials tab: {str(e)}")
 
 # OPERATIONS TAB
 elif selected == "Operations":

@@ -7,7 +7,11 @@ import plotly.io as pio
 from datetime import datetime, timedelta
 from streamlit_option_menu import option_menu
 
-# BRAND COLORS
+# =============================================================================
+# CONSTANTS & CONFIGURATION
+# =============================================================================
+
+# Brand Colors
 PRIMARY_BG = "#000000"  # Jet Black
 ACCENT_TEAL = "#008080"  # Teal
 ACCENT_GOLD = "#D4AF37"  # Gold
@@ -15,7 +19,7 @@ SECONDARY_NAVY = "#0A1F44"  # Navy Blue
 WHITE = "#FFFFFF"  # White
 LIGHT_GRAY = "#F8F9FA"  # Light Gray for backgrounds
 
-# COLOR MAP FOR CHARTS
+# Color Map for Charts
 COLOR_MAP = {
     "Revenue": ACCENT_GOLD,
     "Cost": "#d32f2f",  # Red for costs
@@ -28,13 +32,13 @@ COLOR_MAP = {
     False: "#2e7d32"  # OK = Green
 }
 
-# Initialize session state variables
+# Initialize session state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "first_visit" not in st.session_state:
     st.session_state.first_visit = True
 
-# PAGE CONFIG
+# Page Configuration
 st.set_page_config(
     page_title="PrimeTower Fleet Dashboard",
     page_icon=":truck:",
@@ -42,168 +46,183 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CUSTOM STYLES
-st.markdown(f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap');
+# =============================================================================
+# STYLES & THEMES
+# =============================================================================
 
-    html, body, [class*="css"] {{
-        font-family: 'Inter', sans-serif;
-        background-color: {PRIMARY_BG};
-        color: {WHITE};
-    }}
+def apply_custom_styles():
+    """Apply custom CSS styles to the application."""
+    st.markdown(f"""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap');
 
-    h1, h2, h3, h4, h5, h6 {{
-        font-family: 'Poppins', sans-serif;
-        color: {WHITE};
-    }}
+        html, body, [class*="css"] {{
+            font-family: 'Inter', sans-serif;
+            background-color: {PRIMARY_BG};
+            color: {WHITE};
+        }}
 
-    .container {{
-        padding: 1.5rem;
-        background-color: {SECONDARY_NAVY};
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    }}
+        h1, h2, h3, h4, h5, h6 {{
+            font-family: 'Poppins', sans-serif;
+            color: {WHITE};
+        }}
 
-    .metric-card {{
-        background-color: {SECONDARY_NAVY};
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        border: 1px solid {ACCENT_TEAL};
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }}
-    .metric-card:hover {{
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-    }}
-    .metric-card h3 {{
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        color: {LIGHT_GRAY};
-        margin-bottom: 0.5rem;
-    }}
-    .metric-card p {{
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.8rem;
-        color: {ACCENT_GOLD};
-        margin: 0;
-    }}
+        .container {{
+            padding: 1.5rem;
+            background-color: {SECONDARY_NAVY};
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }}
 
-    .stTabs [role="tab"] {{
-        font-family: 'Poppins', sans-serif;
-        font-size: 1rem;
-        color: {ACCENT_TEAL};
-        padding: 0.8rem 1.2rem;
-        border-radius: 8px;
-    }}
-    .stTabs [aria-selected="true"] {{
-        background-color: {ACCENT_TEAL};
-        color: {WHITE};
-    }}
+        .metric-card {{
+            background-color: {SECONDARY_NAVY};
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid {ACCENT_TEAL};
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }}
+        .metric-card:hover {{
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+        }}
+        .metric-card h3 {{
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: {LIGHT_GRAY};
+            margin-bottom: 0.5rem;
+        }}
+        .metric-card p {{
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            color: {ACCENT_GOLD};
+            margin: 0;
+        }}
 
-    [data-testid="stSidebar"] {{
-        background-color: {SECONDARY_NAVY} !important;
-        border-right: 2px solid {ACCENT_TEAL};
-    }}
+        .stTabs [role="tab"] {{
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            color: {ACCENT_TEAL};
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+        }}
+        .stTabs [aria-selected="true"] {{
+            background-color: {ACCENT_TEAL};
+            color: {WHITE};
+        }}
 
-    .stButton>button {{
-        background-color: {ACCENT_TEAL};
-        color: {WHITE};
-        border: none;
-        border-radius: 8px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-        transition: all 0.3s ease;
-    }}
-    .stButton>button:hover {{
-        background-color: #006666;
-        color: {WHITE};
-    }}
+        [data-testid="stSidebar"] {{
+            background-color: {SECONDARY_NAVY} !important;
+            border-right: 2px solid {ACCENT_TEAL};
+        }}
 
-    .dataframe {{
-        background-color: {SECONDARY_NAVY} !important;
-        border-radius: 8px;
-    }}
-    .dataframe td, .dataframe th {{
-        background-color: {SECONDARY_NAVY} !important;
-        color: {WHITE} !important;
-        border: 1px solid {ACCENT_TEAL};
-    }}
+        .stButton>button {{
+            background-color: {ACCENT_TEAL};
+            color: {WHITE};
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }}
+        .stButton>button:hover {{
+            background-color: #006666;
+            color: {WHITE};
+        }}
 
-    ::-webkit-scrollbar {{
-        width: 8px;
-    }}
-    ::-webkit-scrollbar-track {{
-        background: {PRIMARY_BG};
-    }}
-    ::-webkit-scrollbar-thumb {{
-        background: {ACCENT_TEAL};
-        border-radius: 4px;
-    }}
-    ::-webkit-scrollbar-thumb:hover {{
-        background: #006666;
-    }}
+        .dataframe {{
+            background-color: {SECONDARY_NAVY} !important;
+            border-radius: 8px;
+        }}
+        .dataframe td, .dataframe th {{
+            background-color: {SECONDARY_NAVY} !important;
+            color: {WHITE} !important;
+            border: 1px solid {ACCENT_TEAL};
+        }}
 
-    .login-container {{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 80vh;
-    }}
-    .login-box {{
-        background-color: {WHITE};
-        padding: 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        width: 400px;
-        text-align: center;
-    }}
-    .login-box h2 {{
-        color: {ACCENT_TEAL};
-        font-family: 'Poppins', sans-serif;
-        margin-bottom: 1.5rem;
-    }}
-    </style>
-""", unsafe_allow_html=True)
+        ::-webkit-scrollbar {{
+            width: 8px;
+        }}
+        ::-webkit-scrollbar-track {{
+            background: {PRIMARY_BG};
+        }}
+        ::-webkit-scrollbar-thumb {{
+            background: {ACCENT_TEAL};
+            border-radius: 4px;
+        }}
+        ::-webkit-scrollbar-thumb:hover {{
+            background: #006666;
+        }}
 
-# CHART THEME
-pio.templates["prime_theme"] = go.layout.Template(
-    layout=go.Layout(
-        font=dict(family="Inter", size=12, color=WHITE),
-        title=dict(font=dict(size=16, color=ACCENT_TEAL)),
-        paper_bgcolor=PRIMARY_BG,
-        plot_bgcolor=SECONDARY_NAVY,
-        margin=dict(l=30, r=20, t=50, b=30),
-        xaxis=dict(
-            showgrid=True,
-            gridcolor="#333333",
-            title_font=dict(size=12, family="Inter"),
-            tickfont=dict(size=10, family="Inter"),
-            automargin=True
-        ),
-        yaxis=dict(
-            showgrid=True,
-            gridcolor="#333333",
-            title_font=dict(size=12, family="Inter"),
-            tickfont=dict(size=10, family="Inter"),
-            automargin=True
-        ),
-        legend=dict(
-            orientation="h",
-            yanchor="top",
-            y=-0.2,
-            xanchor="center",
-            x=0.5,
-            font=dict(size=10, family="Inter")
-        ),
-        colorway=[ACCENT_TEAL, "#d32f2f", ACCENT_GOLD, "#ffa726", "#26a69a"]
+        .login-container {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }}
+        .login-box {{
+            background-color: {WHITE};
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: 400px;
+            text-align: center;
+        }}
+        .login-box h2 {{
+            color: {ACCENT_TEAL};
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.5rem;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+
+def configure_chart_theme():
+    """Configure the default Plotly theme for charts."""
+    pio.templates["prime_theme"] = go.layout.Template(
+        layout=go.Layout(
+            font=dict(family="Inter", size=12, color=WHITE),
+            title=dict(font=dict(size=16, color=ACCENT_TEAL)),
+            paper_bgcolor=PRIMARY_BG,
+            plot_bgcolor=SECONDARY_NAVY,
+            margin=dict(l=30, r=20, t=50, b=30),
+            xaxis=dict(
+                showgrid=True,
+                gridcolor="#333333",
+                title_font=dict(size=12, family="Inter"),
+                tickfont=dict(size=10, family="Inter"),
+                automargin=True
+            ),
+            yaxis=dict(
+                showgrid=True,
+                gridcolor="#333333",
+                title_font=dict(size=12, family="Inter"),
+                tickfont=dict(size=10, family="Inter"),
+                automargin=True
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.2,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=10, family="Inter")
+            ),
+            colorway=[ACCENT_TEAL, "#d32f2f", ACCENT_GOLD, "#ffa726", "#26a69a"]
+        )
     )
-)
-pio.templates.default = "prime_theme"
+    pio.templates.default = "prime_theme"
+
+# Apply styles and themes
+apply_custom_styles()
+configure_chart_theme()
+
+# =============================================================================
+# UTILITY FUNCTIONS
+# =============================================================================
 
 def apply_chart_style(fig, title, height=400):
+    """Apply consistent styling to Plotly charts."""
     fig.update_layout(
         title=dict(text=title, font=dict(family="Poppins", size=16, color=WHITE)),
         height=height,
@@ -224,12 +243,17 @@ def apply_chart_style(fig, title, height=400):
     return fig
 
 def kpi_card(title, value, emoji=None, delta=None):
+    """Generate a styled KPI card with optional emoji and delta indicator."""
     emoji_html = f'<span style="font-size: 1.2rem; margin-right: 8px; color: {ACCENT_TEAL};">{emoji}</span>' if emoji else ""
-    delta_html = f"""
-        <div style='font-size: 0.9rem; color: {"#2e7d32" if delta >= 0 else "#d32f2f"}; margin-top: 5px;'>
-            {"↑" if delta >= 0 else "↓"} {abs(delta):.1f}% vs last period
-        </div>
-    """ if delta is not None else ""
+    
+    if delta is not None:
+        delta_html = f"""
+            <div style='font-size: 0.9rem; color: {"#2e7d32" if delta >= 0 else "#d32f2f"}; margin-top: 5px;'>
+                {"↑" if delta >= 0 else "↓"} {abs(delta):.1f}% vs last period
+            </div>
+        """
+    else:
+        delta_html = ""
     
     return f"""
         <div class="metric-card">
@@ -239,9 +263,13 @@ def kpi_card(title, value, emoji=None, delta=None):
         </div>
     """
 
-# SAMPLE DATA
+# =============================================================================
+# DATA LOADING
+# =============================================================================
+
 @st.cache_data
 def load_sample_data():
+    """Load and prepare sample data for the dashboard."""
     # Operations Data
     operations_data = {
         "Doc Type": ["Offloading", "Fuel", "Offloading", "Fuel"],
@@ -294,10 +322,11 @@ def load_sample_data():
         "Current Mileage": [160000, 130000]
     }
     truck_pak = pd.DataFrame(truck_pak_data)
-    truck_pak["Vehicle License Expiry"] = pd.to_datetime(truck_pak["Vehicle License Expiry"])
-    truck_pak["Driver License Expiry"] = pd.to_datetime(truck_pak["Driver License Expiry"])
-    truck_pak["Last Service Date"] = pd.to_datetime(truck_pak["Last Service Date"])
-    truck_pak["GIT Insurance Expiry"] = pd.to_datetime(truck_pak["GIT Insurance Expiry"])
+    
+    # Convert date columns
+    date_cols = ["Vehicle License Expiry", "Driver License Expiry", "Last Service Date", "GIT Insurance Expiry"]
+    for col in date_cols:
+        truck_pak[col] = pd.to_datetime(truck_pak[col])
     
     # Vehicle Cost Schedule Data
     vcs_data = {
@@ -323,8 +352,12 @@ except Exception as e:
     st.error(f"Error loading sample data: {str(e)}")
     st.stop()
 
+# =============================================================================
 # AUTHENTICATION
+# =============================================================================
+
 def show_login():
+    """Display the login interface."""
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown(f"""
@@ -342,7 +375,10 @@ def show_login():
         st.markdown("</div>", unsafe_allow_html=True)
 
 def authenticate(username, password):
-    users = {"admin": "1234", "user1": "pass123"}  # In production, use secure auth
+    """Authenticate user credentials."""
+    # Note: In production, use secure authentication methods
+    users = {"admin": "1234", "user1": "pass123"}
+    
     if username in users and users[username] == password:
         st.session_state.logged_in = True
         st.session_state.username = username
@@ -351,26 +387,43 @@ def authenticate(username, password):
     else:
         st.error("Invalid credentials")
 
+# Check authentication
 if not st.session_state.logged_in:
     show_login()
     st.stop()
 
-# DATA PREP
-operations["Date_only"] = operations["Date"].dt.date
-operations["Year-Month"] = operations["Date"].dt.to_period("M").astype(str)
-operations["Month_Display"] = operations["Date"].dt.strftime("%B %Y")
-month_mapping = operations[["Year-Month", "Month_Display"]].drop_duplicates()
-month_dict = dict(zip(month_mapping["Month_Display"], month_mapping["Year-Month"]))
-available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m])
+# =============================================================================
+# DATA PREPARATION
+# =============================================================================
 
+def prepare_data(operations_df):
+    """Prepare and process the operations data."""
+    operations_df["Date_only"] = operations_df["Date"].dt.date
+    operations_df["Year-Month"] = operations_df["Date"].dt.to_period("M").astype(str)
+    operations_df["Month_Display"] = operations_df["Date"].dt.strftime("%B %Y")
+    
+    # Create month mapping for filters
+    month_mapping = operations_df[["Year-Month", "Month_Display"]].drop_duplicates()
+    month_dict = dict(zip(month_mapping["Month_Display"], month_mapping["Year-Month"]))
+    available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m])
+    
+    return operations_df, month_dict, available_months_display
+
+operations, month_dict, available_months_display = prepare_data(operations)
+
+# =============================================================================
 # SIDEBAR NAVIGATION
+# =============================================================================
+
 with st.sidebar:
+    # User greeting
     st.markdown(f"""
         <div style='text-align: center; margin-bottom: 1rem;'>
             <h4 style='color: {ACCENT_TEAL};'>Welcome, {st.session_state.username}</h4>
         </div>
     """, unsafe_allow_html=True)
     
+    # Navigation menu
     selected = option_menu(
         menu_title=None,
         options=["Home", "Financials", "Operations", "Fuel", "Maintenance", "Alerts"],
@@ -391,8 +444,9 @@ with st.sidebar:
         }
     )
     
+    # Filters
     with st.form("filters_form"):
-        col1, col2, col3 = st.columns([1,1,1])
+        col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
             selected_month_display = st.selectbox(
                 "Month", 
@@ -411,6 +465,7 @@ with st.sidebar:
                 ["All"] + sorted(loi["Route Code"].unique()), 
                 index=0
             )
+        
         submitted = st.form_submit_button("Apply Filters")
         
         if submitted:
@@ -418,40 +473,58 @@ with st.sidebar:
             st.session_state.truck_filter = selected_truck
             st.session_state.route_filter = selected_route
     
+    # Get current filter values from session state
     selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
     selected_truck = st.session_state.get("truck_filter", "All")
     selected_route = st.session_state.get("route_filter", "All")
+    selected_month = month_dict[selected_month_display]
     
+    # Logout button
     if st.button("Logout", type="primary", use_container_width=True):
         st.session_state.logged_in = False
         st.rerun()
 
-selected_month = month_dict[selected_month_display]
+# =============================================================================
+# DATA FILTERING
+# =============================================================================
 
-# APPLY FILTERS
-filtered_ops = operations.copy()
-if selected_truck != "All":
-    filtered_ops = filtered_ops[filtered_ops["TruckID"] == selected_truck]
-if selected_route != "All":
-    filtered_ops = filtered_ops[filtered_ops["Route Code"] == selected_route]
-filtered_ops = filtered_ops[filtered_ops["Year-Month"] == selected_month]
+def apply_filters(df, month, truck, route):
+    """Apply filters to the data based on user selections."""
+    filtered_df = df[df["Year-Month"] == month]
+    
+    if truck != "All":
+        filtered_df = filtered_df[filtered_df["TruckID"] == truck]
+    
+    if route != "All":
+        filtered_df = filtered_df[filtered_df["Route Code"] == route]
+    
+    return filtered_df
+
+filtered_ops = apply_filters(operations, selected_month, selected_truck, selected_route)
 
 # Calculate previous period for delta comparisons
 prev_month = (pd.to_datetime(selected_month) - pd.DateOffset(months=1)).strftime("%Y-%m")
 prev_month_filtered = operations[operations["Year-Month"] == prev_month]
 
+# =============================================================================
+# PAGE CONTENT
+# =============================================================================
+
 # HOME TAB
 if selected == "Home":
     st.session_state.first_visit = False
-    st.markdown("""
+    
+    # Header
+    st.markdown(f"""
         <div style='text-align: center; margin-bottom: 2rem;'>
             <h1 style='color: {ACCENT_TEAL};'>🚀 PrimeTower Fleet Dashboard</h1>
             <p style='font-size: 1.2rem; color: {LIGHT_GRAY};'>
                 Real-time insights for smarter trucking operations
             </p>
         </div>
-    """.format(ACCENT_TEAL=ACCENT_TEAL, LIGHT_GRAY=LIGHT_GRAY), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
+    # Introduction
     col1, col2 = st.columns([3, 1])
     with col1:
         st.markdown("""
@@ -466,6 +539,7 @@ if selected == "Home":
             </div>
         """, unsafe_allow_html=True)
     
+    # Features
     st.markdown("## 👤 Who is PrimeTower for?")
     st.markdown("""
     - 🛻 **Truck Owners** (1–50 trucks)  
@@ -485,6 +559,7 @@ if selected == "Home":
     | 🧮 **Fleet Cost Dashboard** | Compare truck performance and total cost/km |
     """)
     
+    # Call to action
     st.markdown(f"""
         <div style='text-align: center; margin-top: 2rem;'>
             <a href='#' style='background-color: {ACCENT_TEAL}; color: {WHITE}; padding: 0.8rem 1.5rem; 
@@ -499,13 +574,15 @@ elif selected == "Financials":
     st.markdown("## 📊 Financials Overview")
     
     try:
+        # Prepare financial data
         cost_df = filtered_ops.copy()
         cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
         cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
         cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
         cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
-                                     "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
+                                    "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
         
+        # Calculate financial metrics
         cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
         cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
             cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
@@ -513,6 +590,7 @@ elif selected == "Financials":
         cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
         cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
         
+        # Calculate KPIs
         total_revenue = cost_df["Revenue (R)"].sum()
         prev_revenue = prev_month_filtered["Ton Reg"].sum() * loi["Rate per ton"].mean() if not prev_month_filtered.empty else 0
         revenue_delta = ((total_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue != 0 else 0
@@ -526,6 +604,7 @@ elif selected == "Financials":
         profitable_trucks = cost_df[cost_df["Profit (R)"] > 0]["TruckID"].nunique()
         total_trucks = cost_df["TruckID"].nunique()
         
+        # Display KPIs
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.markdown(kpi_card("Total Revenue", f"R{total_revenue:,.2f}", emoji="💰", delta=revenue_delta), unsafe_allow_html=True)
@@ -538,6 +617,7 @@ elif selected == "Financials":
         
         st.caption(f"Data from {cost_df['Date'].min().date()} to {cost_df['Date'].max().date()}")
         
+        # Charts
         with st.container():
             col1, col2 = st.columns(2)
             with col1:
@@ -548,11 +628,13 @@ elif selected == "Financials":
                     "Total Cost (R)": "sum",
                     "Profit (R)": "sum"
                 }).reset_index()
+                
                 df_plot = grouped_cost[["TruckID", "Variable Cost (R)", "Daily Fixed Cost (R/day)"]].melt(
                     id_vars="TruckID",
                     var_name="Cost Type",
                     value_name="Cost (R)"
                 )
+                
                 fig = px.bar(
                     df_plot,
                     x="TruckID",
@@ -577,6 +659,7 @@ elif selected == "Financials":
                 fig2 = apply_chart_style(fig2, "Profit by Truck")
                 st.plotly_chart(fig2, use_container_width=True)
         
+        # Route profitability scatter plot
         with st.container():
             route_profit = cost_df.groupby("Route Code").agg({
                 "Revenue (R)": "mean",
@@ -584,6 +667,7 @@ elif selected == "Financials":
                 "Profit (R)": "mean",
                 "Ton Reg": "sum"
             }).reset_index()
+            
             fig3 = px.scatter(
                 route_profit,
                 x="Revenue (R)",
@@ -595,10 +679,16 @@ elif selected == "Financials":
                 color_continuous_scale=[(0, "#d32f2f"), (1, ACCENT_TEAL)],
                 size_max=40
             )
+            
+            # Add break-even line
+            max_value = route_profit[["Revenue (R)", "Total Cost (R)"]].max().max() * 1.1
             fig3.add_shape(
-                type="line", line=dict(dash="dash", color=WHITE),
-                x0=0, y0=0, x1=route_profit["Revenue (R)".max()*1.1,
-                y1=route_profit["Revenue (R)".max()*1.1])
+                type="line",
+                line=dict(dash="dash", color=WHITE),
+                x0=0, y0=0,
+                x1=max_value, y1=max_value
+            )
+            
             fig3 = apply_chart_style(fig3, "Route Profitability")
             st.plotly_chart(fig3, use_container_width=True)
             
@@ -610,6 +700,7 @@ elif selected == "Operations":
     st.markdown("## 🚛 Operations Dashboard")
     
     try:
+        # Prepare operations data
         ops_df = filtered_ops.copy()
         if "Distance" in loi.columns:
             ops_df = ops_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
@@ -619,6 +710,7 @@ elif selected == "Operations":
         
         ops_df = ops_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
         
+        # Calculate KPIs
         active_trucks = ops_df["TruckID"].nunique()
         total_tons = ops_df[ops_df["Doc Type"] == "Offloading"]["Ton Reg"].sum()
         total_km = ops_df["Distance"].sum() if "Distance" in ops_df.columns else 0
@@ -629,6 +721,7 @@ elif selected == "Operations":
         prev_tons = prev_month_filtered[prev_month_filtered["Doc Type"] == "Offloading"]["Ton Reg"].sum() if not prev_month_filtered.empty else 0
         tons_delta = ((total_tons - prev_tons) / prev_tons * 100) if prev_tons != 0 else 0
         
+        # Display KPIs
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.markdown(kpi_card("Active Trucks", active_trucks, emoji="🚚", delta=active_trucks_delta), unsafe_allow_html=True)
@@ -641,6 +734,7 @@ elif selected == "Operations":
         
         st.caption(f"Data from {ops_df['Date'].min().date()} to {ops_df['Date'].max().date()}")
         
+        # Daily tons moved chart
         with st.container():
             daily_tons = ops_df[ops_df["Doc Type"] == "Offloading"].groupby("Date_only")["Ton Reg"].sum().reset_index()
             fig1 = px.line(
@@ -655,6 +749,7 @@ elif selected == "Operations":
             fig1 = apply_chart_style(fig1, "Daily Tons Moved")
             st.plotly_chart(fig1, use_container_width=True)
         
+        # Performance by truck
         with st.container():
             col1, col2 = st.columns(2)
             with col1:
@@ -693,14 +788,17 @@ elif selected == "Fuel":
     st.markdown("## ⛽ Fuel Efficiency Dashboard")
     
     try:
+        # Prepare fuel data
         fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
         fuel_df = fuel_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
+        
         if "Distance" in loi.columns:
             fuel_df = fuel_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
         else:
             st.warning("Column 'Distance' not found in LOI data. Using default distance.")
             fuel_df["Distance"] = 0
         
+        # Calculate fuel metrics
         fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance"] / fuel_df["Ton Reg"]
         fuel_df["Fuel Cost per km (R/km)"] = fuel_df["Ton Reg"] / fuel_df["Distance"]
         
@@ -708,6 +806,7 @@ elif selected == "Fuel":
         total_fuel_used = fuel_df["Ton Reg"].sum()
         fuel_cost_per_km = fuel_df["Fuel Cost per km (R/km)"].mean()
         
+        # Display KPIs
         col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown(kpi_card("Avg Fuel Efficiency", f"{avg_efficiency:.2f} km/L", emoji="🚀"), unsafe_allow_html=True)
@@ -718,6 +817,7 @@ elif selected == "Fuel":
         
         st.caption(f"Data from {fuel_df['Date'].min().date()} to {fuel_df['Date'].max().date()}")
         
+        # Fuel efficiency charts
         with st.container():
             col1, col2 = st.columns(2)
             with col1:
@@ -731,8 +831,12 @@ elif selected == "Fuel":
                     line_shape="spline"
                 )
                 fig1.update_traces(line_color=ACCENT_TEAL)
-                fig1.add_hline(y=avg_efficiency, line_dash="dash", line_color=ACCENT_GOLD, 
-                              annotation_text=f"Avg: {avg_efficiency:.2f} km/L")
+                fig1.add_hline(
+                    y=avg_efficiency,
+                    line_dash="dash",
+                    line_color=ACCENT_GOLD,
+                    annotation_text=f"Avg: {avg_efficiency:.2f} km/L"
+                )
                 fig1 = apply_chart_style(fig1, "Daily Fuel Efficiency")
                 st.plotly_chart(fig1, use_container_width=True)
             
@@ -758,6 +862,7 @@ elif selected == "Maintenance":
     st.markdown("## 🔧 Maintenance Dashboard")
     
     try:
+        # Prepare maintenance data
         maint_df = truck_pak.copy()
         maint_df["KM Since Service"] = maint_df["Current Mileage"] - maint_df["Last Service"]
         maint_df["Service Due"] = maint_df["KM Since Service"] > 10000
@@ -769,15 +874,18 @@ elif selected == "Maintenance":
             "GIT Insurance Expiry": "GIT Insurance"
         }
         
+        # Calculate days until expiry for various documents
         for col, label in expiry_fields.items():
             maint_df[f"{label} Days Left"] = (maint_df[col] - today).dt.days
             maint_df[f"{label} Expiring"] = maint_df[f"{label} Days Left"].le(30)
         
+        # Calculate KPIs
         overdue_services = maint_df["Service Due"].sum()
         license_expiring = maint_df["License Expiry Expiring"].sum()
         driver_expiring = maint_df["Driver License Expiring"].sum()
         git_expiring = maint_df["GIT Insurance Expiring"].sum()
         
+        # Display KPIs
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.markdown(kpi_card("Overdue Services", int(overdue_services), emoji="🔧"), unsafe_allow_html=True)
@@ -788,6 +896,7 @@ elif selected == "Maintenance":
         with col4:
             st.markdown(kpi_card("GIT Insurance Expiring", git_expiring, emoji="🛡️"), unsafe_allow_html=True)
         
+        # Maintenance charts
         with st.container():
             col1, col2 = st.columns(2)
             with col1:
@@ -800,8 +909,12 @@ elif selected == "Maintenance":
                     title="KM Since Last Service",
                     hover_data=["Current Mileage", "Last Service"]
                 )
-                fig1.add_hline(y=10000, line_dash="dash", line_color=ACCENT_GOLD, 
-                              annotation_text="Service Threshold")
+                fig1.add_hline(
+                    y=10000,
+                    line_dash="dash",
+                    line_color=ACCENT_GOLD,
+                    annotation_text="Service Threshold"
+                )
                 fig1 = apply_chart_style(fig1, "KM Since Last Service")
                 st.plotly_chart(fig1, use_container_width=True)
             
@@ -811,16 +924,22 @@ elif selected == "Maintenance":
                     maint_df["Driver License Expiring"] |
                     maint_df["GIT Insurance Expiring"]
                 ]
+                
                 if not expiring_df.empty:
                     date_cols = ["Vehicle License Expiry", "Driver License Expiry", "GIT Insurance Expiry"]
                     days_matrix = expiring_df[date_cols].apply(lambda col: (col - today).dt.days)
                     days_matrix = days_matrix.clip(lower=0, upper=30)
+                    
                     fig2 = go.Figure(data=go.Heatmap(
                         z=days_matrix.values,
                         x=days_matrix.columns,
                         y=expiring_df["TruckID"],
                         colorscale=[[0, "darkred"], [0.2, "orangered"], [0.5, "orange"], [0.8, "yellow"], [1, "lightyellow"]],
-                        colorbar=dict(title="Days to Expiry", tickvals=[0, 10, 20, 30], ticktext=["0 (Expired)", "10", "20", "30+"]),
+                        colorbar=dict(
+                            title="Days to Expiry",
+                            tickvals=[0, 10, 20, 30],
+                            ticktext=["0 (Expired)", "10", "20", "30+"]
+                        ),
                         hoverongaps=False,
                         hovertemplate="TruckID %{y}<br>%{x}: %{z} days"
                     ))
@@ -837,13 +956,15 @@ elif selected == "Alerts":
     st.markdown("## 🔔 Actionable Alerts")
     
     try:
+        # Prepare financial data for alerts
         cost_df = filtered_ops.copy()
         cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
         cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
         cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
         cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
-                                     "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
+                                    "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
         
+        # Calculate financial metrics
         cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
         cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
             cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
@@ -851,6 +972,7 @@ elif selected == "Alerts":
         cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
         cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
         
+        # Top performers
         st.markdown("### 🌟 Top Performers")
         col1, col2 = st.columns(2)
         with col1:
@@ -877,12 +999,16 @@ elif selected == "Alerts":
                     </div>
                 """, unsafe_allow_html=True)
         
+        # Optimization opportunities
         st.markdown("### ⚡ Optimization Opportunities")
+        
+        # Fuel efficiency alerts
         fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
         if "Distance" in loi.columns:
             fuel_df = fuel_df.merge(loi[["Route Code", "Distance"]], on="Route Code", how="left")
         else:
             fuel_df["Distance"] = 0
+        
         fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance"] / fuel_df["Ton Reg"]
         inefficient_trucks = fuel_df.groupby(["TruckID", "Driver Name"])["Fuel Efficiency (km/L)"].mean().nsmallest(3).reset_index()
         
@@ -901,6 +1027,7 @@ elif selected == "Alerts":
                 </div>
             """, unsafe_allow_html=True)
         
+        # Loss-making routes
         loss_routes = cost_df.groupby("Route Code")["Profit (R)"].sum().nsmallest(3).reset_index()
         if not loss_routes.empty:
             st.markdown(f"""

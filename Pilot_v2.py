@@ -598,8 +598,7 @@ elif selected == "Financials":
             fig3.add_shape(
                 type="line", line=dict(dash="dash", color=WHITE),
                 x0=0, y0=0, x1=route_profit["Revenue (R)".max()*1.1,
-                y1=route_profit["Revenue (R)".max()*1.1
-            )]
+                y1=route_profit["Revenue (R)".max()*1.1])
             fig3 = apply_chart_style(fig3, "Route Profitability")
             st.plotly_chart(fig3, use_container_width=True)
             

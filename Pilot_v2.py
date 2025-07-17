@@ -496,9 +496,7 @@ if selected == "Home":
 
 # FINANCIALS TAB
 elif selected == "Financials":
-    st.markdown("## �間
-
-System: 📊 Financials Overview")
+    st.markdown("##System: 📊 Financials Overview")
 
     try:
         cost_df = filtered_ops.copy()

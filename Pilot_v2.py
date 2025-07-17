@@ -242,24 +242,14 @@ def apply_chart_style(fig, title, height=400):
     )
     return fig
 
-def kpi_card(title, value, emoji=None, delta=None):
-    """Generate a styled KPI card with optional emoji and delta indicator."""
+def kpi_card(title, value, emoji=None):
+    """Generate a styled KPI card without delta comparison"""
     emoji_html = f'<span style="font-size: 1.2rem; margin-right: 8px; color: {ACCENT_TEAL};">{emoji}</span>' if emoji else ""
     
-    if delta is not None:
-        delta_html = f"""
-            <div style='font-size: 0.9rem; color: {"#2e7d32" if delta >= 0 else "#d32f2f"}; margin-top: 5px;'>
-                {"↑" if delta >= 0 else "↓"} {abs(delta):.1f}% vs last period
-            </div>
-        """
-    else:
-        delta_html = ""
-    
     return f"""
-        <div class="metric-card">
+        <div class="metric-card" style="height: 120px; display: flex; flex-direction: column; justify-content: center;">
             <h3>{emoji_html}{title}</h3>
             <p>{value}</p>
-            {delta_html}
         </div>
     """
 

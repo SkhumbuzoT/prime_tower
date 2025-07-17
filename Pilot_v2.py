@@ -679,8 +679,12 @@ elif selected == "Operations":
     try:
         # Prepare operations data
         ops_df = filtered_ops.copy()
-        if "Distance" in loi.columns:
+        
+        # Use the correct column name 'Distance (km)' from LOI data
+        if "Distance (km)" in loi.columns:
             ops_df = ops_df.merge(loi[["Route Code", "Distance (km)"]], on="Route Code", how="left")
+            # Rename to 'Distance' for consistency in calculations
+            ops_df = ops_df.rename(columns={"Distance (km)": "Distance"})
         else:
             st.warning("Column 'Distance (km)' not found in LOI data. Using default distance.")
             ops_df["Distance"] = 0
@@ -690,7 +694,7 @@ elif selected == "Operations":
         # Calculate KPIs
         active_trucks = ops_df["TruckID"].nunique()
         total_tons = ops_df[ops_df["Doc Type"] == "Offloading"]["Ton Reg"].sum()
-        total_km = ops_df["Distance (km)"].sum() if "Distance" in ops_df.columns else 0
+        total_km = ops_df["Distance"].sum()  # Now using the correctly named column
         route_count = ops_df["Route Code"].nunique()
         
         prev_active_trucks = prev_month_filtered["TruckID"].nunique() if not prev_month_filtered.empty else 0
@@ -759,6 +763,7 @@ elif selected == "Operations":
     
     except Exception as e:
         st.error(f"Error in Operations tab: {str(e)}")
+        
 
 # FUEL TAB
 elif selected == "Fuel":

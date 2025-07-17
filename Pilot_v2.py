@@ -256,8 +256,8 @@ def apply_chart_style(fig, title, height=400):
     return fig
 
 def kpi_card(title, value, emoji=None):
-    """Generate a styled KPI card without delta comparison"""
-    emoji_html = f'<span class="emoji">{emoji}</span>' if emoji else ""
+    """Generate a standardized KPI card without inline styles"""
+    emoji_html = f'<span class="metric-emoji">{emoji}</span>' if emoji else ""
     
     return f"""
         <div class="metric-card">

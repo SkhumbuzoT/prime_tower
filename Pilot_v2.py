@@ -6,6 +6,8 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from datetime import datetime, timedelta
 from streamlit_option_menu import option_menu
+import gspread
+from google.oauth2 import service_account
 
 # =============================================================================
 # CONSTANTS & CONFIGURATION
@@ -269,88 +271,57 @@ def kpi_card(title, value, emoji=None):
 # =============================================================================
 
 @st.cache_data
-def load_sample_data():
-    """Load and prepare sample data for the dashboard."""
-    # Operations Data
-    operations_data = {
-        "Doc Type": ["Offloading", "Fuel", "Offloading", "Fuel"],
-        "Ton Reg": [20, 100, 25, 80],
-        "TruckID": ["TRK001", "TRK001", "TRK002", "TRK002"],
-        "Date": ["2025-06-01", "2025-06-02", "2025-06-01", "2025-06-02"],
-        "Route Code": ["RT001", "RT001", "RT002", "RT002"],
-        "Slip Number": [1001, 1002, 1003, 1004]
+def load_data_from_gsheet():
+    # Create a connection to Google Sheets
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    
+    # Load credentials from Streamlit secrets
+    creds_dict = {
+        "type": st.secrets["gcp_service_account"]["type"],
+        "project_id": st.secrets["gcp_service_account"]["project_id"],
+        "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
+        "private_key": st.secrets["gcp_service_account"]["private_key"],
+        "client_email": st.secrets["gcp_service_account"]["client_email"],
+        "client_id": st.secrets["gcp_service_account"]["client_id"],
+        "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
+        "token_uri": st.secrets["gcp_service_account"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
     }
-    operations = pd.DataFrame(operations_data)
-    operations["Date"] = pd.to_datetime(operations["Date"])
     
-    # Tracker Data
-    tracker_data = {
-        "Distance (km)": [500, 450, 600, 550],
-        "TruckID": ["TRK001", "TRK001", "TRK002", "TRK002"],
-        "Date": ["2025-06-01", "2025-06-02", "2025-06-01", "2025-06-02"],
-        "TripID": [1, 2, 3, 4]
-    }
-    tracker = pd.DataFrame(tracker_data)
-    tracker["Date"] = pd.to_datetime(tracker["Date"])
+    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
+    client = gspread.authorize(creds)
     
-    # LOI Data
-    loi_data = {
-        "Route Code": ["RT001", "RT002"],
-        "Loading Point": ["Cape Town", "Johannesburg"],
-        "Offloading Point": ["Durban", "Pretoria"],
-        "Distance (km)": [1200, 300],  # Changed to Distance (km)
-        "Rate per ton": [1500.0, 1000.0],
-        "Fuel per litre": [25.0, 25.0],
-        "Estimated loads per day": [2, 3]
-    }
-    loi = pd.DataFrame(loi_data)
+    # Helper function to load a worksheet as DataFrame
+    def get_worksheet_df(sheet_name):
+        sheet = client.open_by_key(st.secrets["gsheet_id"]).worksheet(sheet_name)
+        return pd.DataFrame(sheet.get_all_records())
     
-    # Truck Pack Data
-    truck_pak_data = {
-        "Registration": ["CA123", "GP456"],
-        "Driver Name": ["John Doe", "Jane Smith"],
-        "Prime Mover": ["Volvo", "Mercedes"],
-        "Series": ["FH16", "Actros"],
-        "Year": [2019, 2020],
-        "Trailer 1": ["TRL001", "TRL003"],
-        "Trailer 2": ["TRL002", "TRL004"],
-        "TruckID": ["TRK001", "TRK002"],
-        "Vehicle License Expiry": ["2025-12-31", "2025-11-30"],
-        "Driver License Expiry": ["2026-06-30", "2026-03-31"],
-        "Last Service Mileage": [150000, 120000],
-        "GIT Insurance Expiry": ["2025-10-31", "2025-09-30"],
-        "Last Service Date": ["2025-03-01", "2025-02-15"],
-        "Current Mileage": [160000, 130000]
-    }
-    truck_pak = pd.DataFrame(truck_pak_data)
-    
-    # Convert date columns
-    date_cols = ["Vehicle License Expiry", "Driver License Expiry", "Last Service Date", "GIT Insurance Expiry"]
-    for col in date_cols:
-        truck_pak[col] = pd.to_datetime(truck_pak[col])
-    
-    # Vehicle Cost Schedule Data
-    vcs_data = {
-        "TruckID": ["TRK001", "TRK002"],
-        "Vehicle Type": ["34T Side-T", "34T Flatbed"],
-        "Finance Cost (R/month)": [20000, 18000],
-        "Insurance (R/month)": [5000, 4500],
-        "License (R/month)": [1000, 1000],
-        "Driver Salary (R/month)": [15000, 14000],
-        "Fuel Cost (R/km)": [10.0, 9.5],
-        "Maintenance Cost (R/km)": [2.0, 1.8],
-        "Tyres (R/km)": [1.5, 1.4],
-        "Daily Fixed Cost (R/day)": [1000, 900]
-    }
-    vcs = pd.DataFrame(vcs_data)
-    
-    return operations, tracker, loi, truck_pak, vcs
+    # Load all worksheets
+    return (
+        get_worksheet_df("operations"),
+        get_worksheet_df("tracker"),
+        get_worksheet_df("loi"),
+        get_worksheet_df("truck_pak"),
+        get_worksheet_df("vehicle_cost_schedule")
+    )
 
-# Load sample data
+# Then replace the data loading section with:
 try:
-    operations, tracker, loi, truck_pak, vcs = load_sample_data()
+    operations, tracker, loi, truck_pak, vcs = load_data_from_gsheet()
+    
+    # Convert date columns (add any other needed conversions)
+    operations["Date"] = pd.to_datetime(operations["Date"])
+    truck_pak["Vehicle License Expiry"] = pd.to_datetime(truck_pak["Vehicle License Expiry"])
+    truck_pak["Driver License Expiry"] = pd.to_datetime(truck_pak["Driver License Expiry"])
+    truck_pak["Last Service Date"] = pd.to_datetime(truck_pak["Last Service Date"])
+    truck_pak["GIT Insurance Expiry"] = pd.to_datetime(truck_pak["GIT Insurance Expiry"])
+    
 except Exception as e:
-    st.error(f"Error loading sample data: {str(e)}")
+    st.error(f"Error loading data from Google Sheets: {str(e)}")
     st.stop()
 
 # =============================================================================

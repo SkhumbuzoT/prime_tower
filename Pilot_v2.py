@@ -548,7 +548,7 @@ if selected == "Home":
 
 # FINANCIALS TAB
 elif selected == "Financials":
-    st.markdown("### 📊 Financials Overview")
+    st.markdown("#### 📊 Financials Overview")
     
     try:
         # Prepare financial data

@@ -527,139 +527,102 @@ prev_month_filtered = operations[operations["Year-Month"] == prev_month]
 if selected == "Home":
     st.session_state.first_visit = False
     
-    # Header with improved styling
+    # Header with quick stats
     st.markdown(f"""
         <div style='text-align: center; margin-bottom: 2rem;'>
-            <h1 style='color: {ACCENT_TEAL}; margin-bottom: 0.5rem;'>
-                <span style='font-size: 1.5em;'>🚛</span> PrimeTower Fleet Dashboard
+            <h1 style='color: {ACCENT_TEAL}; margin-bottom: 0;'>
+                <span style='font-size: 1.5em;'>🚛</span> Welcome Back, {st.session_state.username}
             </h1>
-            <p style='font-size: 1.1rem; color: {LIGHT_GRAY}; max-width: 800px; margin: 0 auto;'>
-                Real-time insights for smarter trucking operations. Transform your fleet management with data-driven decisions.
+            <p style='font-size: 1.1rem; color: {LIGHT_GRAY};'>
+                Your fleet at a glance • Last updated: {datetime.now().strftime("%d %b %Y %H:%M")}
             </p>
         </div>
     """, unsafe_allow_html=True)
     
-    # Value proposition cards
-    st.markdown("### Why Choose PrimeTower?")
+    # Quick KPIs (3 columns)
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(f"""
-            <div class="metric-card" style='height: 180px;'>
-                <h3>📊 Data-Driven Decisions</h3>
-                <p style='color: {WHITE}; font-size: 0.9rem;'>
-                    Move beyond guesswork with real-time metrics on every aspect of your fleet operations.
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(kpi_card("Active Trucks", "12", emoji="🚚"), unsafe_allow_html=True)
+        st.markdown(kpi_card("Today's Trips", "24", emoji="🛣️"), unsafe_allow_html=True)
     with col2:
-        st.markdown(f"""
-            <div class="metric-card" style='height: 180px;'>
-                <h3>💰 Profit Optimization</h3>
-                <p style='color: {WHITE}; font-size: 0.9rem;'>
-                    Identify your most profitable routes and trucks while spotting cost-saving opportunities.
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(kpi_card("Fuel Efficiency", "3.2 km/L", emoji="⛽"), unsafe_allow_html=True)
+        st.markdown(kpi_card("Avg Load", "18.5T", emoji="📦"), unsafe_allow_html=True)
     with col3:
+        st.markdown(kpi_card("Today's Revenue", "R42,380", emoji="💰"), unsafe_allow_html=True)
+        st.markdown(kpi_card("Alerts", "2", emoji="⚠️"), unsafe_allow_html=True)
+    
+    # Recent Activity Section
+    st.markdown("## 📍 Recent Activity")
+    activity_col1, activity_col2 = st.columns([2,1])
+    with activity_col1:
+        # Mini map or recent trips visualization
         st.markdown(f"""
-            <div class="metric-card" style='height: 180px;'>
-                <h3>⏱️ Time Savings</h3>
-                <p style='color: {WHITE}; font-size: 0.9rem;'>
-                    Automated reporting and alerts save you hours of manual tracking and analysis.
-                </p>
+            <div style='background-color: {SECONDARY_NAVY}; border-radius: 12px; padding: 1rem; height: 300px;'>
+                <p style='color: {ACCENT_TEAL}; font-weight: bold;'>Today's Trip Activity</p>
+                <!-- Would contain a map visualization -->
+                <div style='background-color: #1a2b3c; height: 250px; display: flex; justify-content: center; align-items: center; border-radius: 8px;'>
+                    <p style='color: {LIGHT_GRAY};'>Map visualization would appear here</p>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+    with activity_col2:
+        # Quick alerts
+        st.markdown(f"""
+            <div style='background-color: {SECONDARY_NAVY}; border-radius: 12px; padding: 1rem; height: 300px;'>
+                <p style='color: {ACCENT_TEAL}; font-weight: bold;'>⚠️ Requires Attention</p>
+                <div style='margin-top: 1rem;'>
+                    <div style='background-color: #2c3e50; padding: 0.8rem; border-radius: 8px; margin-bottom: 0.5rem;'>
+                        <p style='margin: 0; font-weight: bold;'>🚛 Truck PT-102</p>
+                        <p style='margin: 0; font-size: 0.9rem;'>Service overdue by 1,200 km</p>
+                    </div>
+                    <div style='background-color: #2c3e50; padding: 0.8rem; border-radius: 8px;'>
+                        <p style='margin: 0; font-weight: bold;'>📝 License Expiry</p>
+                        <p style='margin: 0; font-size: 0.9rem;'>3 documents expiring in 7 days</p>
+                    </div>
+                </div>
             </div>
         """, unsafe_allow_html=True)
     
-    # Divider
-    st.markdown("---")
-    
-    # Target audience with icons
-    st.markdown("## 🎯 Designed For Fleet Professionals")
-    audience_col1, audience_col2 = st.columns(2)
-    with audience_col1:
-        st.markdown("""
-        - **🚛 Small Fleet Owners** (1–50 trucks)  
-          *Gain enterprise-level insights without enterprise-level complexity*
-        - **🤝 Subcontracted Transporters**  
-          *Prove your value and negotiate better rates with data*
-        """)
-    with audience_col2:
-        st.markdown("""
-        - **📋 SME Logistics Coordinators**  
-          *Monitor multiple transporters from one dashboard*
-        - **📊 Data-Driven Fleet Managers**  
-          *Replace spreadsheets with real-time operational intelligence*
-        """)
-    
-    # Feature showcase with tabs
-    st.markdown("## ✨ Key Features")
-    tab1, tab2, tab3, tab4 = st.tabs(["Operational Visibility", "Financial Insights", "Fuel Management", "Maintenance"])
-    
-    with tab1:
+    # Quick Links to Key Sections
+    st.markdown("## 🚀 Quick Access")
+    quick_col1, quick_col2, quick_col3, quick_col4 = st.columns(4)
+    with quick_col1:
         st.markdown(f"""
-            <div style='background-color: {SECONDARY_NAVY}; padding: 1.5rem; border-radius: 12px;'>
-                <h4 style='color: {ACCENT_TEAL};'>📍 Trip Tracking</h4>
-                <p>Real-time visibility into trips, distances, and loads with automated documentation.</p>
-                
-                <h4 style='color: {ACCENT_TEAL}; margin-top: 1rem;'>📦 Load Optimization</h4>
-                <p>Identify underutilized capacity and optimize your truck allocations.</p>
-            </div>
+            <a href='#' style='text-decoration: none;'>
+                <div class="metric-card" style='height: 100px; display: flex; flex-direction: column; justify-content: center;'>
+                    <h3 style='margin: 0;'>💸 Financials</h3>
+                    <p style='margin: 0; font-size: 0.9rem; color: {LIGHT_GRAY};'>View revenue & costs</p>
+                </div>
+            </a>
         """, unsafe_allow_html=True)
-    
-    with tab2:
+    with quick_col2:
         st.markdown(f"""
-            <div style='background-color: {SECONDARY_NAVY}; padding: 1.5rem; border-radius: 12px;'>
-                <h4 style='color: {ACCENT_TEAL};'>💰 Profit Analysis</h4>
-                <p>Know your exact margin per truck, trip, and route with our detailed cost breakdowns.</p>
-                
-                <h4 style='color: {ACCENT_TEAL}; margin-top: 1rem;'>📈 Performance Benchmarking</h4>
-                <p>Compare trucks and drivers to identify your top performers.</p>
-            </div>
+            <a href='#' style='text-decoration: none;'>
+                <div class="metric-card" style='height: 100px; display: flex; flex-direction: column; justify-content: center;'>
+                    <h3 style='margin: 0;'>⛽ Fuel</h3>
+                    <p style='margin: 0; font-size: 0.9rem; color: {LIGHT_GRAY};'>Analyze consumption</p>
+                </div>
+            </a>
         """, unsafe_allow_html=True)
-    
-    with tab3:
+    with quick_col3:
         st.markdown(f"""
-            <div style='background-color: {SECONDARY_NAVY}; padding: 1.5rem; border-radius: 12px;'>
-                <h4 style='color: {ACCENT_TEAL};'>⛽ Fuel Usage Insights</h4>
-                <p>Spot fuel anomalies, theft, and consumption patterns across your fleet.</p>
-                
-                <h4 style='color: {ACCENT_TEAL}; margin-top: 1rem;'>🛣️ Route Efficiency</h4>
-                <p>Identify which routes deliver the best fuel efficiency for your trucks.</p>
-            </div>
+            <a href='#' style='text-decoration: none;'>
+                <div class="metric-card" style='height: 100px; display: flex; flex-direction: column; justify-content: center;'>
+                    <h3 style='margin: 0;'>🔧 Maintenance</h3>
+                    <p style='margin: 0; font-size: 0.9rem; color: {LIGHT_GRAY};'>Service tracking</p>
+                </div>
+            </a>
         """, unsafe_allow_html=True)
-    
-    with tab4:
+    with quick_col4:
         st.markdown(f"""
-            <div style='background-color: {SECONDARY_NAVY}; padding: 1.5rem; border-radius: 12px;'>
-                <h4 style='color: {ACCENT_TEAL};'>🔧 Maintenance Reminders</h4>
-                <p>Get proactive alerts before services and renewals are missed.</p>
-                
-                <h4 style='color: {ACCENT_TEAL}; margin-top: 1rem;'>📝 Compliance Tracking</h4>
-                <p>Never miss a license or insurance renewal with our expiration alerts.</p>
-            </div>
+            <a href='#' style='text-decoration: none;'>
+                <div class="metric-card" style='height: 100px; display: flex; flex-direction: column; justify-content: center;'>
+                    <h3 style='margin: 0;'>📊 Reports</h3>
+                    <p style='margin: 0; font-size: 0.9rem; color: {LIGHT_GRAY};'>Generate exports</p>
+                </div>
+            </a>
         """, unsafe_allow_html=True)
-    
-    # Call to action with better styling
-    st.markdown("---")
-    st.markdown(f"""
-        <div style='text-align: center; margin: 2rem 0;'>
-            <h3 style='color: {ACCENT_TEAL};'>Ready to Transform Your Fleet Management?</h3>
-            <p style='margin-bottom: 1.5rem;'>Start exploring your data now or contact us for a personalized demo.</p>
-            <div style='display: flex; justify-content: center; gap: 1rem;'>
-                <a href='#' style='background-color: {ACCENT_TEAL}; color: {WHITE}; padding: 0.8rem 1.5rem; 
-                    border-radius: 8px; text-decoration: none; font-family: Poppins, sans-serif;
-                    transition: all 0.3s ease; border: 2px solid {ACCENT_TEAL};'>
-                    Explore Dashboard →
-                </a>
-                <a href='#' style='background-color: transparent; color: {ACCENT_TEAL}; padding: 0.8rem 1.5rem; 
-                    border-radius: 8px; text-decoration: none; font-family: Poppins, sans-serif;
-                    transition: all 0.3s ease; border: 2px solid {ACCENT_TEAL};'>
-                    Request Demo
-                </a>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
+        
 # FINANCIALS TAB
 elif selected == "Financials":
     st.markdown("#### 📊 Financials Overview")

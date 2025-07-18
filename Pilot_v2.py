@@ -56,138 +56,138 @@ def apply_custom_styles():
     """Apply custom CSS styles to the application."""
     st.markdown(f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap');
 
-        html, body, [class*="css"] {{
-            font-family: 'Inter', sans-serif;
-            background-color: {PRIMARY_BG};
-            color: {WHITE};
-        }}
+            html, body, [class*="css"] {{
+                font-family: 'Inter', sans-serif;
+                background-color: {PRIMARY_BG};
+                color: {WHITE};
+            }}
 
-        h1, h2, h3, h4, h5, h6 {{
-            font-family: 'Poppins', sans-serif;
-            color: {WHITE};
-        }}
+            h1, h2, h3, h4, h5, h6 {{
+                font-family: 'Poppins', sans-serif;
+                color: {WHITE};
+            }}
 
-        .container {{
-            padding: 1.5rem;
-            background-color: {SECONDARY_NAVY};
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }}
+            .container {{
+                padding: 1.5rem;
+                background-color: {SECONDARY_NAVY};
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            }}
 
-        .metric-card {{
-            background-color: {SECONDARY_NAVY};
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid {ACCENT_TEAL};
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            height: 140px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }}
-        .metric-card:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-        }}
-        .metric-card h3 {{
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            color: {LIGHT_GRAY};
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-        .metric-card p {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.4rem;  /* Reduced from 1.8rem to 1.4rem */
-            color: #D4AF37;     /* Directly using the gold color for consistency */
-            margin: 0;
-            line-height: 1;
-            font-weight: 600;   /* Added semi-bold weight for better readability */
-        }
-        .metric-card .emoji {{
-            font-size: 1.5rem;
-        }}
+            .metric-card {{
+                background-color: {SECONDARY_NAVY};
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+                border: 1px solid {ACCENT_TEAL};
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                height: 140px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }}
+            .metric-card:hover {{
+                transform: translateY(-3px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+            }}
+            .metric-card h3 {{
+                font-family: 'Inter', sans-serif;
+                font-size: 1rem;
+                color: {LIGHT_GRAY};
+                margin-bottom: 0.5rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }}
+            .metric-card p {{
+                font-family: 'Poppins', sans-serif;
+                font-size: 1.4rem;  /* Reduced from 1.8rem to 1.4rem */
+                color: #D4AF37;     /* Directly using the gold color for consistency */
+                margin: 0;
+                line-height: 1;
+                font-weight: 600;   /* Added semi-bold weight for better readability */
+            }}
+            .metric-card .emoji {{
+                font-size: 1.5rem;
+            }}
 
-        .stTabs [role="tab"] {{
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            color: {ACCENT_TEAL};
-            padding: 0.8rem 1.2rem;
-            border-radius: 8px;
-        }}
-        .stTabs [aria-selected="true"] {{
-            background-color: {ACCENT_TEAL};
-            color: {WHITE};
-        }}
+            .stTabs [role="tab"] {{
+                font-family: 'Poppins', sans-serif;
+                font-size: 1rem;
+                color: {ACCENT_TEAL};
+                padding: 0.8rem 1.2rem;
+                border-radius: 8px;
+            }}
+            .stTabs [aria-selected="true"] {{
+                background-color: {ACCENT_TEAL};
+                color: {WHITE};
+            }}
 
-        [data-testid="stSidebar"] {{
-            background-color: {SECONDARY_NAVY} !important;
-            border-right: 2px solid {ACCENT_TEAL};
-        }}
+            [data-testid="stSidebar"] {{
+                background-color: {SECONDARY_NAVY} !important;
+                border-right: 2px solid {ACCENT_TEAL};
+            }}
 
-        .stButton>button {{
-            background-color: {ACCENT_TEAL};
-            color: {WHITE};
-            border: none;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            transition: all 0.3s ease;
-        }}
-        .stButton>button:hover {{
-            background-color: #006666;
-            color: {WHITE};
-        }}
+            .stButton>button {{
+                background-color: {ACCENT_TEAL};
+                color: {WHITE};
+                border: none;
+                border-radius: 8px;
+                font-family: 'Poppins', sans-serif;
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+                transition: all 0.3s ease;
+            }}
+            .stButton>button:hover {{
+                background-color: #006666;
+                color: {WHITE};
+            }}
 
-        .dataframe {{
-            background-color: {SECONDARY_NAVY} !important;
-            border-radius: 8px;
-        }}
-        .dataframe td, .dataframe th {{
-            background-color: {SECONDARY_NAVY} !important;
-            color: {WHITE} !important;
-            border: 1px solid {ACCENT_TEAL};
-        }}
+            .dataframe {{
+                background-color: {SECONDARY_NAVY} !important;
+                border-radius: 8px;
+            }}
+            .dataframe td, .dataframe th {{
+                background-color: {SECONDARY_NAVY} !important;
+                color: {WHITE} !important;
+                border: 1px solid {ACCENT_TEAL};
+            }}
 
-        ::-webkit-scrollbar {{
-            width: 8px;
-        }}
-        ::-webkit-scrollbar-track {{
-            background: {PRIMARY_BG};
-        }}
-        ::-webkit-scrollbar-thumb {{
-            background: {ACCENT_TEAL};
-            border-radius: 4px;
-        }}
-        ::-webkit-scrollbar-thumb:hover {{
-            background: #006666;
-        }}
+            ::-webkit-scrollbar {{
+                width: 8px;
+            }}
+            ::-webkit-scrollbar-track {{
+                background: {PRIMARY_BG};
+            }}
+            ::-webkit-scrollbar-thumb {{
+                background: {ACCENT_TEAL};
+                border-radius: 4px;
+            }}
+            ::-webkit-scrollbar-thumb:hover {{
+                background: #006666;
+            }}
 
-        .login-container {{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 80vh;
-        }}
-        .login-box {{
-            background-color: {WHITE};
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            width: 400px;
-            text-align: center;
-        }}
-        .login-box h2 {{
-            color: {ACCENT_TEAL};
-            font-family: 'Poppins', sans-serif;
-            margin-bottom: 1.5rem;
-        }}
+            .login-container {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 80vh;
+            }}
+            .login-box {{
+                background-color: {WHITE};
+                padding: 2.5rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                width: 400px;
+                text-align: center;
+            }}
+            .login-box h2 {{
+                color: {ACCENT_TEAL};
+                font-family: 'Poppins', sans-serif;
+                margin-bottom: 1.5rem;
+            }}
         </style>
     """, unsafe_allow_html=True)
 

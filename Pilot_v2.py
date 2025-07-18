@@ -491,11 +491,11 @@ selected_truck = st.session_state.get("truck_filter", "All")
 selected_route = st.session_state.get("route_filter", "All")
 selected_month = month_dict[selected_month_display]
     
-# Logout button
-if st.button("Logout", type="primary", use_container_width=True):
-    st.session_state.logged_in = False
-    st.rerun()
-
+        # Logout button
+        if st.button("Logout", type="primary", use_container_width=True):
+            st.session_state.logged_in = False
+            st.rerun()
+    
 # =============================================================================
 # DATA FILTERING
 # =============================================================================

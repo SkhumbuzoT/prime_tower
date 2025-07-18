@@ -103,11 +103,11 @@ def apply_custom_styles():
             }}
             .metric-card p {{
                 font-family: 'Poppins', sans-serif;
-                font-size: 1.2rem;  /* Reduced from 1.8rem to 1.4rem */
-                color: #D4AF37;     /* Directly using the gold color for consistency */
+                font-size: 1.2rem;
+                color: #D4AF37;
                 margin: 0;
                 line-height: 1;
-                font-weight: 600;   /* Added semi-bold weight for better readability */
+                font-weight: 600;
             }}
             .metric-card .emoji {{
                 font-size: 1.5rem;
@@ -188,26 +188,26 @@ def apply_custom_styles():
                 font-family: 'Poppins', sans-serif;
                 margin-bottom: 1.5rem;
             }}
-            .filter-container {
+            .filter-container {{
                 background-color: #2c3e50;
                 padding: 1rem;
                 border-radius: 8px;
                 margin-bottom: 1.5rem;
                 border: 1px solid #18bc9c;
-            }
-            .filter-title {
+            }}
+            .filter-title {{
                 font-family: 'Poppins', sans-serif;
                 color: #18bc9c;
                 margin-bottom: 0.5rem;
                 font-size: 1.1rem;
-            }
-            .stSelectbox div[data-baseweb="select"] {
+            }}
+            .stSelectbox div[data-baseweb="select"] {{
                 background-color: #34495e !important;
                 color: white !important;
-            }
-            .stDateInput div[data-baseweb="input"] {
+            }}
+            .stDateInput div[data-baseweb="input"] {{
                 background-color: #34495e !important;
-            }
+            }}
         </style>
     """, unsafe_allow_html=True)
 

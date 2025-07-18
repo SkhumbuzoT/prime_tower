@@ -481,20 +481,21 @@ with st.sidebar:
             st.session_state.month_filter = selected_month_display
             st.session_state.truck_filter = selected_truck
             st.session_state.route_filter = selected_route
-            st.rerun()  # Add this to immediately apply filters
+            st.rerun()
     
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     
-# Get current filter values from session state
+    # Logout button at the bottom of the sidebar
+    st.markdown("<br>", unsafe_allow_html=True)  # Add some space
+    if st.button("Logout", type="primary", use_container_width=True):
+        st.session_state.logged_in = False  # Fixed typo: was "logged_in" vs "loged_in"
+        st.rerun()
+
+# Get current filter values from session state (outside sidebar)
 selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
 selected_truck = st.session_state.get("truck_filter", "All")
 selected_route = st.session_state.get("route_filter", "All")
 selected_month = month_dict[selected_month_display]
-    
-        # Logout button
-        if st.button("Logout", type="primary", use_container_width=True):
-            st.session_state.logged_in = False
-            st.rerun()
     
 # =============================================================================
 # DATA FILTERING

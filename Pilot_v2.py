@@ -354,26 +354,35 @@ available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m]
 # =============================================================================
 
 def show_login():
-    """Display the login interface with improved styling."""
+    """Display the properly aligned login interface."""
     st.markdown(f"""
         <style>
-            .login-container {{
+            /* Remove default Streamlit padding */
+            .stApp {{
+                padding: 0 !important;
+            }}
+            /* Main container styling */
+            .login-root {{
+                width: 100%;
+                height: 100vh;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                min-height: 80vh;
                 background-color: {PRIMARY_BG};
+                margin: 0;
+                padding: 20px;
             }}
+            /* Login box styling */
             .login-box {{
                 background-color: {SECONDARY_NAVY};
                 padding: 2.5rem;
                 border-radius: 12px;
                 box-shadow: 0 8px 32px rgba(0,0,0,0.3);
                 width: 100%;
-                max-width: 450px;
+                max-width: 400px;
                 border: 1px solid {ACCENT_TEAL};
-                margin: 2rem;
             }}
+            /* Title styling */
             .login-title {{
                 color: {ACCENT_TEAL};
                 font-family: 'Poppins', sans-serif;
@@ -381,25 +390,45 @@ def show_login():
                 margin-bottom: 1.5rem;
                 text-align: center;
             }}
-            .stTextInput>div>div>input, 
-            .stTextInput>div>div>input:focus {{
+            /* Input field styling */
+            .stTextInput>div>div>input {{
                 background-color: {PRIMARY_BG} !important;
                 color: {WHITE} !important;
                 border: 1px solid {ACCENT_TEAL} !important;
                 padding: 12px !important;
                 border-radius: 8px !important;
             }}
+            /* Label styling */
             .stTextInput>label {{
                 color: {LIGHT_GRAY} !important;
                 font-family: 'Inter', sans-serif;
                 font-size: 0.9rem !important;
                 margin-bottom: 0.5rem !important;
             }}
+            /* Button styling */
+            .stButton>button {{
+                width: 100%;
+                background-color: {ACCENT_TEAL} !important;
+                color: {WHITE} !important;
+                border: none !important;
+                padding: 12px !important;
+                border-radius: 8px !important;
+                font-family: 'Poppins', sans-serif;
+                font-weight: 600;
+                transition: all 0.3s;
+            }}
+            .stButton>button:hover {{
+                background-color: #006666 !important;
+                transform: translateY(-1px);
+            }}
         </style>
     """, unsafe_allow_html=True)
 
+    # Main container
     with st.container():
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        st.markdown('<div class="login-root">', unsafe_allow_html=True)
+        
+        # Login form
         with st.form("login_form"):
             st.markdown(f"""
                 <div class="login-box">
@@ -411,6 +440,7 @@ def show_login():
                     </div>
             """, unsafe_allow_html=True)
             
+            # Form fields
             username = st.text_input(
                 "Username",
                 placeholder="Enter your username",
@@ -424,6 +454,7 @@ def show_login():
                 key="password_input"
             )
             
+            # Login button
             login_button = st.form_submit_button(
                 "Login →",
                 use_container_width=True,
@@ -433,14 +464,17 @@ def show_login():
             if login_button:
                 authenticate(username, password)
                 
+            # Footer link
             st.markdown(f"""
                 <div style='text-align: center; margin-top: 1.5rem;'>
                     <p style='color: {LIGHT_GRAY}; font-size: 0.9rem;'>
-                        Need help? <a href='mailto:support@primetower.com' style='color: {ACCENT_TEAL}; text-decoration: none;'>Contact support</a>
+                        Need help? <a href='mailto:support@primetower.com' 
+                        style='color: {ACCENT_TEAL}; text-decoration: none;'>Contact support</a>
                     </p>
                 </div>
                 </div>
             """, unsafe_allow_html=True)
+        
         st.markdown('</div>', unsafe_allow_html=True)
 
 def authenticate(username, password):

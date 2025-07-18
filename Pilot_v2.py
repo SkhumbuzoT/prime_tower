@@ -83,7 +83,7 @@ def apply_custom_styles():
                 margin-bottom: 1rem;
                 border: 1px solid {ACCENT_TEAL};
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
-                height: 140px;
+                height: 120px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -103,7 +103,7 @@ def apply_custom_styles():
             }}
             .metric-card p {{
                 font-family: 'Poppins', sans-serif;
-                font-size: 1.4rem;  /* Reduced from 1.8rem to 1.4rem */
+                font-size: 1.2rem;  /* Reduced from 1.8rem to 1.4rem */
                 color: #D4AF37;     /* Directly using the gold color for consistency */
                 margin: 0;
                 line-height: 1;

@@ -188,6 +188,26 @@ def apply_custom_styles():
                 font-family: 'Poppins', sans-serif;
                 margin-bottom: 1.5rem;
             }}
+            .filter-container {
+                background-color: #2c3e50;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                border: 1px solid #18bc9c;
+            }
+            .filter-title {
+                font-family: 'Poppins', sans-serif;
+                color: #18bc9c;
+                margin-bottom: 0.5rem;
+                font-size: 1.1rem;
+            }
+            .stSelectbox div[data-baseweb="select"] {
+                background-color: #34495e !important;
+                color: white !important;
+            }
+            .stDateInput div[data-baseweb="input"] {
+                background-color: #34495e !important;
+            }
         </style>
     """, unsafe_allow_html=True)
 
@@ -422,33 +442,48 @@ with st.sidebar:
     )
     
     # Filters
+    with st.container():
+    st.markdown('<div class="filter-form">', unsafe_allow_html=True)
+    
     with st.form("filters_form"):
+        st.markdown('<p class="filter-title">FILTERS</p>', unsafe_allow_html=True)
+        
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
             selected_month_display = st.selectbox(
                 "Month", 
                 available_months_display, 
-                index=len(available_months_display)-1
+                index=len(available_months_display)-1,
+                key="month_select"
             )
         with col2:
             selected_truck = st.selectbox(
                 "Truck", 
                 ["All"] + sorted(truck_pak["TruckID"].unique()), 
-                index=0
+                index=0,
+                key="truck_select"
             )
         with col3:
             selected_route = st.selectbox(
                 "Route", 
                 ["All"] + sorted(loi["Route Code"].unique()), 
-                index=0
+                index=0,
+                key="route_select"
             )
         
-        submitted = st.form_submit_button("Apply Filters")
+        submitted = st.form_submit_button(
+            "Apply Filters", 
+            type="primary", 
+            use_container_width=True
+        )
         
         if submitted:
             st.session_state.month_filter = selected_month_display
             st.session_state.truck_filter = selected_truck
             st.session_state.route_filter = selected_route
+            st.rerun()  # Add this to immediately apply filters
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Get current filter values from session state
     selected_month_display = st.session_state.get("month_filter", available_months_display[-1])

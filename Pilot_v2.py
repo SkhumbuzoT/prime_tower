@@ -443,7 +443,7 @@ with st.sidebar:
     
     # Filters
     with st.container():
-    st.markdown('<div class="filter-form">', unsafe_allow_html=True)
+        st.markdown('<div class="filter-form">', unsafe_allow_html=True)
     
     with st.form("filters_form"):
         st.markdown('<p class="filter-title">FILTERS</p>', unsafe_allow_html=True)

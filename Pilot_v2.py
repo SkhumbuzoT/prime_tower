@@ -83,7 +83,7 @@ def apply_custom_styles():
                 margin-bottom: 1rem;
                 border: 1px solid {ACCENT_TEAL};
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
-                height: 100px;
+                height: 120px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;

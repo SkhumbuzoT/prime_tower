@@ -486,7 +486,7 @@ with st.sidebar:
 st.markdown('</div>', unsafe_allow_html=True)
     
     # Get current filter values from session state
-    selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
+        selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
     selected_truck = st.session_state.get("truck_filter", "All")
     selected_route = st.session_state.get("route_filter", "All")
     selected_month = month_dict[selected_month_display]

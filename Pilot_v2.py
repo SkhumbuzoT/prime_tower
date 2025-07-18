@@ -666,7 +666,7 @@ elif selected == "Financials":
 
 # OPERATIONS TAB
 elif selected == "Operations":
-    st.markdown("## 🚛 Operations Dashboard")
+    st.markdown("#### 🚛 Operations Dashboard")
     
     try:
         # Prepare operations data
@@ -753,7 +753,7 @@ elif selected == "Operations":
 
 # FUEL TAB
 elif selected == "Fuel":
-    st.markdown("## ⛽ Fuel Efficiency Dashboard")
+    st.markdown("#### ⛽ Fuel Efficiency Dashboard")
     
     try:
         # Prepare fuel data
@@ -831,7 +831,7 @@ elif selected == "Fuel":
 
 # MAINTENANCE TAB
 elif selected == "Maintenance":
-    st.markdown("## 🔧 Maintenance Dashboard")
+    st.markdown("#### 🔧 Maintenance Dashboard")
     
     try:
         # Prepare maintenance data
@@ -932,7 +932,7 @@ elif selected == "Maintenance":
 
 # ALERTS TAB
 elif selected == "Alerts":
-    st.markdown("## 🔔 Actionable Alerts")
+    st.markdown("#### 🔔 Actionable Alerts")
     
     try:
         # Prepare financial data for alerts

@@ -483,7 +483,7 @@ with st.sidebar:
             st.session_state.route_filter = selected_route
             st.rerun()  # Add this to immediately apply filters
     
-    st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
     
     # Get current filter values from session state
     selected_month_display = st.session_state.get("month_filter", available_months_display[-1])

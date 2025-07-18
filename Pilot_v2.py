@@ -625,7 +625,7 @@ if selected == "Home":
         
 # FINANCIALS TAB
 elif selected == "Financials":
-    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>📊 Financials Overview</h4>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>Financials Overview</h4>", unsafe_allow_html=True)
     
     try:
         # Prepare financial data
@@ -744,7 +744,7 @@ elif selected == "Financials":
 # OPERATIONS TAB
 elif selected == "Operations":
     #st.markdown("#### 🚛 Operations Dashboard")
-    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>🚛 Operations Dashboard</h4>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>Operations Dashboard</h4>", unsafe_allow_html=True)
     
     try:
         # Prepare operations data
@@ -832,7 +832,7 @@ elif selected == "Operations":
 # FUEL TAB
 elif selected == "Fuel":
     #st.markdown("#### ⛽ Fuel Efficiency Dashboard")
-    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>⛽ Fuel Efficiency Dashboard</h4>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>Fuel Efficiency Dashboard</h4>", unsafe_allow_html=True)
     
     try:
         # Prepare fuel data
@@ -911,7 +911,7 @@ elif selected == "Fuel":
 # MAINTENANCE TAB
 elif selected == "Maintenance":
     #st.markdown("#### 🔧 Maintenance Dashboard")
-    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>🔧 Maintenance Dashboard</h4>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>Maintenance Dashboard</h4>", unsafe_allow_html=True)
     
     try:
         # Prepare maintenance data
@@ -1013,7 +1013,7 @@ elif selected == "Maintenance":
 # ALERTS TAB
 elif selected == "Alerts":
     #st.markdown("#### 🔔 Actionable Alerts")
-    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>🔔 Actionable Alerts</h4>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>Actionable Alerts</h4>", unsafe_allow_html=True)
     
     try:
         # Prepare financial data for alerts

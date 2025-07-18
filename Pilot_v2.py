@@ -101,13 +101,14 @@ def apply_custom_styles():
             align-items: center;
             gap: 8px;
         }}
-        .metric-card p {{
+        .metric-card p {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.8rem;
-            color: {ACCENT_GOLD};
+            font-size: 1.4rem;  /* Reduced from 1.8rem to 1.4rem */
+            color: #D4AF37;     /* Directly using the gold color for consistency */
             margin: 0;
             line-height: 1;
-        }}
+            font-weight: 600;   /* Added semi-bold weight for better readability */
+        }
         .metric-card .emoji {{
             font-size: 1.5rem;
         }}

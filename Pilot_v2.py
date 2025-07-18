@@ -354,22 +354,94 @@ available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m]
 # =============================================================================
 
 def show_login():
-    """Display the login interface."""
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown(f"""
-            <div class="login-box">
-                <h2>🔐 PrimeTower Login</h2>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        username = st.text_input("Username", placeholder="Enter your username")
-        password = st.text_input("Password", type="password", placeholder="Enter your password")
-        
-        if st.button("Login", use_container_width=True):
-            authenticate(username, password)
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+    """Display the login interface with improved styling."""
+    st.markdown(f"""
+        <style>
+            .login-container {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 80vh;
+                background-color: {PRIMARY_BG};
+            }}
+            .login-box {{
+                background-color: {SECONDARY_NAVY};
+                padding: 2.5rem;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                width: 100%;
+                max-width: 450px;
+                border: 1px solid {ACCENT_TEAL};
+                margin: 2rem;
+            }}
+            .login-title {{
+                color: {ACCENT_TEAL};
+                font-family: 'Poppins', sans-serif;
+                font-size: 1.8rem;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            }}
+            .stTextInput>div>div>input, 
+            .stTextInput>div>div>input:focus {{
+                background-color: {PRIMARY_BG} !important;
+                color: {WHITE} !important;
+                border: 1px solid {ACCENT_TEAL} !important;
+                padding: 12px !important;
+                border-radius: 8px !important;
+            }}
+            .stTextInput>label {{
+                color: {LIGHT_GRAY} !important;
+                font-family: 'Inter', sans-serif;
+                font-size: 0.9rem !important;
+                margin-bottom: 0.5rem !important;
+            }}
+        </style>
+    """, unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        with st.form("login_form"):
+            st.markdown(f"""
+                <div class="login-box">
+                    <div style='text-align: center; margin-bottom: 2rem;'>
+                        <h2 class="login-title">🔐 PrimeTower Login</h2>
+                        <p style='color: {LIGHT_GRAY}; font-size: 0.9rem;'>
+                            Enter your credentials to access the dashboard
+                        </p>
+                    </div>
+            """, unsafe_allow_html=True)
+            
+            username = st.text_input(
+                "Username",
+                placeholder="Enter your username",
+                key="username_input"
+            )
+            
+            password = st.text_input(
+                "Password", 
+                type="password",
+                placeholder="Enter your password",
+                key="password_input"
+            )
+            
+            login_button = st.form_submit_button(
+                "Login →",
+                use_container_width=True,
+                type="primary"
+            )
+            
+            if login_button:
+                authenticate(username, password)
+                
+            st.markdown(f"""
+                <div style='text-align: center; margin-top: 1.5rem;'>
+                    <p style='color: {LIGHT_GRAY}; font-size: 0.9rem;'>
+                        Need help? <a href='mailto:support@primetower.com' style='color: {ACCENT_TEAL}; text-decoration: none;'>Contact support</a>
+                    </p>
+                </div>
+                </div>
+            """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 def authenticate(username, password):
     """Authenticate user credentials."""

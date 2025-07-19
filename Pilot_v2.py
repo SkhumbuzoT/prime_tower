@@ -82,7 +82,7 @@ def apply_custom_styles():
             letter-spacing: .5px;
         }}
         .metric-card p {{
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: {ACCENT_GOLD};
             margin: 0;

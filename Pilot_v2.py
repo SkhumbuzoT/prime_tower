@@ -258,68 +258,6 @@ month_mapping = operations[["Year-Month", "Month_Display"]].drop_duplicates()
 month_dict = dict(zip(month_mapping["Month_Display"], month_mapping["Year-Month"]))
 available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m])
 
-# =============================================================================
-# AUTHENTICATION
-# =============================================================================
-
-def show_login():
-    st.markdown(f"""
-    <style>
-        .login-root {{
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: {PRIMARY_BG};
-            margin: 0;
-            padding: 20px;
-        }}
-        .login-box {{
-            background-color: {SECONDARY_NAVY};
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid {ACCENT_TEAL};
-        }}
-    </style>
-    """, unsafe_allow_html=True)
-
-    with st.container():
-        st.markdown('<div class="login-root">', unsafe_allow_html=True)
-        with st.form("login_form"):
-            st.markdown(f"""
-                <div class="login-box">
-                    <div style='text-align: center; margin-bottom: 2rem;'>
-                        <h2 style='color: {ACCENT_TEAL};'>🔐 PrimeTower Login</h2>
-                        <p style='color: {LIGHT_GRAY}; font-size: 0.9rem;'>
-                            Enter your credentials to access the dashboard
-                        </p>
-                    </div>
-            """, unsafe_allow_html=True)
-            username = st.text_input("Username", placeholder="Enter your username")
-            password = st.text_input("Password", type="password", placeholder="Enter your password")
-            submitted = st.form_submit_button("Login →", use_container_width=True, type="primary")
-            if submitted:
-                authenticate(username, password)
-            st.markdown("</div>", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-def authenticate(username, password):
-    users = {"admin": "1234", "user1": "pass123"}
-    if username in users and users[username] == password:
-        st.session_state.logged_in = True
-        st.session_state.username = username
-        st.session_state.first_visit = True
-        st.rerun()
-    else:
-        st.error("Invalid credentials")
-
-if not st.session_state.logged_in:
-    show_login()
-    st.stop()
 
 # =============================================================================
 # SIDEBAR NAV

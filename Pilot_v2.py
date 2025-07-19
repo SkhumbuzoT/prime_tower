@@ -38,12 +38,6 @@ COLOR_MAP = {
     False: "#2e7d32"
 }
 
-# Auth state
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "first_visit" not in st.session_state:
-    st.session_state.first_visit = True
-
 st.set_page_config(
     page_title="PrimeTower Fleet Dashboard",
     page_icon=":truck:",

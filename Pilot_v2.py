@@ -284,60 +284,7 @@ month_mapping = operations[["Year-Month", "Month_Display"]].drop_duplicates()
 month_dict = dict(zip(month_mapping["Month_Display"], month_mapping["Year-Month"]))
 available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m])
 
-# =============================================================================
-# SIDEBAR NAV (unchanged)
-# =============================================================================
-
-with st.sidebar:
-    st.markdown(f"<h4 style='color: {ACCENT_TEAL}; text-align:center;'>PrimeTower</h4>", unsafe_allow_html=True)
-    selected = option_menu(
-        menu_title=None,
-        options=["Home", "Financials", "Operations", "Fuel", "Maintenance", "Alerts"],
-        icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "bell"],
-        menu_icon="cast",
-        default_index=0,
-        styles={
-            "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
-            "icon": {"color": ACCENT_GOLD, "font-size": "18px"},
-            "nav-link": {"color": WHITE, "font-size": "15px", "text-align": "left", "margin": "5px", "--hover-color": ACCENT_TEAL},
-            "nav-link-selected": {"background-color": ACCENT_TEAL},
-        }
-    )
-
-    with st.form("filters_form"):
-        st.markdown('<p class="filter-title">FILTERS</p>', unsafe_allow_html=True)
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            month_disp = st.selectbox("Month", available_months_display, index=len(available_months_display)-1, key="month_select")
-        with c2:
-            truck = st.selectbox("Truck", ["All"] + sorted(truck_pak["TruckID"].unique()), index=0, key="truck_select")
-        with c3:
-            route = st.selectbox("Route", ["All"] + sorted(loi["Route Code"].unique()), index=0, key="route_select")
-        submitted = st.form_submit_button("Apply Filters", type="primary", use_container_width=True)
-        if submitted:
-            st.session_state.month_filter = month_disp
-            st.session_state.truck_filter = truck
-            st.session_state.route_filter = route
-            st.rerun()
-
-# =============================================================================
-# DATA FILTERING (unchanged)
-# =============================================================================
-
-selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
-selected_truck = st.session_state.get("truck_filter", "All")
-selected_route = st.session_state.get("route_filter", "All")
-selected_month = month_dict[selected_month_display]
-
-def apply_filters(df, month, truck, route):
-    filtered = df[df["Year-Month"] == month]
-    if truck != "All":
-        filtered = filtered[filtered["TruckID"] == truck]
-    if route != "All":
-        filtered = filtered[filtered["Route Code"] == route]
-    return filtered
-
-filtered_ops = apply_filters(operations, selected_month, selected_truck, selected_route)
+# ============================================================================
 
 # --- DATA PREP ---
 operations["Date"] = pd.to_datetime(operations["Date"])

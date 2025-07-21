@@ -369,7 +369,7 @@ with st.sidebar:
         }
     )
 
-    with st.form("filters_form"):
+    with st.form(key="filters_form_sidebar"):  # make the key unique
         st.markdown('<p class="filter-title">FILTERS</p>', unsafe_allow_html=True)
         c1, c2, c3 = st.columns(3)
         with c1:

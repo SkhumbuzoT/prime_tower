@@ -355,16 +355,17 @@ available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m]
 with st.sidebar:
     st.markdown(f"<h4 style='color: {ACCENT_TEAL}; text-align:center;'>PrimeTower</h4>", unsafe_allow_html=True)
     selected = option_menu(
-        menu_title=None,
-        options=["Home", "Financials", "Operations", "Fuel", "Maintenance", "Alerts"],
-        icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "bell"],
-        menu_icon="cast",
-        default_index=0,
-        styles={
-            "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
-            "icon": {"color": ACCENT_GOLD, "font-size": "18px"},
-            "nav-link": {"color": WHITE, "font-size": "15px", "text-align": "left", "margin": "5px", "--hover-color": ACCENT_TEAL},
-            "nav-link-selected": {"background-color": ACCENT_TEAL},
+    menu_title=None,
+    options=["Home", "Financials", "Operations", "Fuel", "Maintenance", "Alerts"],
+    icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "bell"],
+    menu_icon="cast",
+    default_index=0,
+    key="main_nav",  # <--- this fixes the duplicate ID issue
+    styles={
+        "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
+        "icon": {"color": ACCENT_GOLD, "font-size": "18px"},
+        "nav-link": {"color": WHITE, "font-size": "15px", "text-align": "left", "margin": "5px", "--hover-color": ACCENT_TEAL},
+        "nav-link-selected": {"background-color": ACCENT_TEAL},
         }
     )
 

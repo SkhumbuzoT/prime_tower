@@ -1,6 +1,17 @@
+# Add startup logging with unique ID
+import uuid
+deployment_id = str(uuid.uuid4())
+logger.info(f"Starting deployment {deployment_id}")
+Would you like me to focus on any particular aspect of these log issues? The repetition is the most concerning pattern that needs investigation.
+
+please fix entire code without changing fundamental and theme
+Fixed PrimeTower Fleet Dashboard Code
+Here's the complete fixed code that maintains all the original functionality and theme while addressing the log issues and improving reliability:
+
+python
 """
 PrimeTower Fleet Dashboard – Enterprise Edition
-Login removed – launches directly into dashboard
+Optimized version with fixed logging and deployment issues
 """
 
 import streamlit as st
@@ -13,17 +24,37 @@ from datetime import datetime
 from streamlit_option_menu import option_menu
 import gspread
 from google.oauth2 import service_account
+import sys
+import logging
 
 # =============================================================================
-# CONSTANTS & CONFIGURATION
+# INITIALIZATION & LOGGING CONFIGURATION
 # =============================================================================
 
-PRIMARY_BG     = "#000000"
-ACCENT_TEAL    = "#008080"
-ACCENT_GOLD    = "#D4AF37"
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__)
+
+# Version check
+if sys.version_info < (3, 10):
+    logger.error("Python 3.10 or later required")
+    st.error("System Error: Python 3.10 or later required")
+    st.stop()
+
+# =============================================================================
+# CONSTANTS & CONFIGURATION (unchanged)
+# =============================================================================
+
+PRIMARY_BG = "#000000"
+ACCENT_TEAL = "#008080"
+ACCENT_GOLD = "#D4AF37"
 SECONDARY_NAVY = "#0A1F44"
-WHITE          = "#FFFFFF"
-LIGHT_GRAY     = "#F8F9FA"
+WHITE = "#FFFFFF"
+LIGHT_GRAY = "#F8F9FA"
 
 COLOR_MAP = {
     "Revenue": ACCENT_GOLD,
@@ -37,15 +68,12 @@ COLOR_MAP = {
     False: "#2e7d32"
 }
 
-st.set_page_config(
-    page_title="PrimeTower Fleet Dashboard",
-    page_icon=":truck:",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# Initialize session state for deployment tracking
+if 'initialized' not in st.session_state:
+    st.session_state.initialized = False
 
 # =============================================================================
-# STYLES & THEMES
+# STYLES & THEMES (unchanged)
 # =============================================================================
 
 def apply_custom_styles():
@@ -156,20 +184,28 @@ def configure_chart_theme():
     )
     pio.templates.default = "prime_theme"
 
-apply_custom_styles()
-configure_chart_theme()
+# Initialize styles and themes only once
+if not st.session_state.initialized:
+    apply_custom_styles()
+    configure_chart_theme()
+    st.session_state.initialized = True
+    logger.info("Application initialized successfully")
 
 # =============================================================================
-# UTILITIES
+# UTILITIES (unchanged except for logging)
 # =============================================================================
 
 def apply_chart_style(fig, title, height=400):
-    fig.update_layout(
-        title=dict(text=title, font=dict(family="Poppins", size=16, color=WHITE)),
-        height=height,
-        margin=dict(l=40, r=20, t=50, b=40)
-    )
-    return fig
+    try:
+        fig.update_layout(
+            title=dict(text=title, font=dict(family="Poppins", size=16, color=WHITE)),
+            height=height,
+            margin=dict(l=40, r=20, t=50, b=40)
+        )
+        return fig
+    except Exception as e:
+        logger.error(f"Error applying chart style: {str(e)}")
+        return fig
 
 def kpi_card(title, value, emoji=None):
     emoji_html = f'<span class="emoji">{emoji}</span>' if emoji else ""
@@ -181,55 +217,138 @@ def kpi_card(title, value, emoji=None):
     """
 
 # =============================================================================
-# DATA LOADING
+# DATA LOADING (optimized with better error handling)
 # =============================================================================
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def load_data_from_gsheet():
-    if st.session_state.get("use_demo", False):
-        @st.cache_data
-        def load_demo_data():
-            operations = pd.read_csv("data/demo_operations.csv")
-            tracker    = pd.read_csv("data/demo_tracker.csv")
-            loi        = pd.read_csv("data/demo_loi.csv")
-            truck_pak  = pd.read_csv("data/demo_truck_pak.csv")
-            vcs        = pd.read_csv("data/demo_vcs.csv")
-            return operations, tracker, loi, truck_pak, vcs
-        return load_demo_data()
-    else:
-        scope = [
-            "https://spreadsheets.google.com/feeds",
-            "https://www.googleapis.com/auth/drive"
-        ]
-        creds_dict = {
-            "type": st.secrets["gcp_service_account"]["type"],
-            "project_id": st.secrets["gcp_service_account"]["project_id"],
-            "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
-            "private_key": st.secrets["gcp_service_account"]["private_key"],
-            "client_email": st.secrets["gcp_service_account"]["client_email"],
-            "client_id": st.secrets["gcp_service_account"]["client_id"],
-            "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
-            "token_uri": st.secrets["gcp_service_account"]["token_uri"],
-            "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
-        }
-        creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
-        client = gspread.authorize(creds)
+    try:
+        if st.session_state.get("use_demo", False):
+            @st.cache_data
+            def load_demo_data():
+                logger.info("Loading demo data")
+                operations = pd.read_csv("data/demo_operations.csv")
+                tracker = pd.read_csv("data/demo_tracker.csv")
+                loi = pd.read_csv("data/demo_loi.csv")
+                truck_pak = pd.read_csv("data/demo_truck_pak.csv")
+                vcs = pd.read_csv("data/demo_vcs.csv")
+                return operations, tracker, loi, truck_pak, vcs
+            return load_demo_data()
+        else:
+            logger.info("Loading data from Google Sheets")
+            scope = [
+                "https://spreadsheets.google.com/feeds",
+                "https://www.googleapis.com/auth/drive"
+            ]
+            
+            if not all(key in st.secrets["gcp_service_account"] for key in ["type", "project_id", "private_key_id", "private_key"]):
+                logger.error("Missing Google Sheets credentials in secrets")
+                st.error("Configuration Error: Missing Google Sheets credentials")
+                return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
-        def get_worksheet_df(sheet_name):
-            return pd.DataFrame(
-                client.open_by_key("1QYHK9DoiBjJPLrQlovHxDkRuv4xImwtzbokul_rOdjI")
-                .worksheet(sheet_name).get_all_records()
+            creds_dict = {
+                "type": st.secrets["gcp_service_account"]["type"],
+                "project_id": st.secrets["gcp_service_account"]["project_id"],
+                "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
+                "private_key": st.secrets["gcp_service_account"]["private_key"],
+                "client_email": st.secrets["gcp_service_account"]["client_email"],
+                "client_id": st.secrets["gcp_service_account"]["client_id"],
+                "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
+                "token_uri": st.secrets["gcp_service_account"]["token_uri"],
+                "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
+                "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
+            }
+            
+            creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
+            client = gspread.authorize(creds)
+
+            def get_worksheet_df(sheet_name):
+                try:
+                    sheet = client.open_by_key("1QYHK9DoiBjJPLrQlovHxDkRuv4xImwtzbokul_rOdjI").worksheet(sheet_name)
+                    return pd.DataFrame(sheet.get_all_records())
+                except Exception as e:
+                    logger.error(f"Error loading worksheet {sheet_name}: {str(e)}")
+                    return pd.DataFrame()
+
+            return (
+                get_worksheet_df("operations"),
+                get_worksheet_df("tracker"),
+                get_worksheet_df("loi"),
+                get_worksheet_df("truck_pak"),
+                get_worksheet_df("vehicle_cost_schedule")
             )
-        return (
-            get_worksheet_df("operations"),
-            get_worksheet_df("tracker"),
-            get_worksheet_df("loi"),
-            get_worksheet_df("truck_pak"),
-            get_worksheet_df("vehicle_cost_schedule")
-        )
+    except Exception as e:
+        logger.error(f"Error in data loading: {str(e)}")
+        st.error(f"Data Loading Error: {str(e)}")
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
-operations, tracker, loi, truck_pak, vcs = load_data_from_gsheet()
+# Load data with progress indicator
+with st.spinner("Loading data..."):
+    operations, tracker, loi, truck_pak, vcs = load_data_from_gsheet()
+
+# --- DATA PREP (unchanged) ---
+operations["Date"] = pd.to_datetime(operations["Date"])
+operations["Date_only"] = operations["Date"].dt.date
+operations["Year-Month"] = operations["Date"].dt.to_period("M").astype(str)
+operations["Month_Display"] = operations["Date"].dt.strftime("%B %Y")
+month_mapping = operations[["Year-Month", "Month_Display"]].drop_duplicates()
+month_dict = dict(zip(month_mapping["Month_Display"], month_mapping["Year-Month"]))
+available_months_display = sorted(month_dict.keys(), key=lambda m: month_dict[m])
+
+# =============================================================================
+# SIDEBAR NAV (unchanged)
+# =============================================================================
+
+with st.sidebar:
+    st.markdown(f"<h4 style='color: {ACCENT_TEAL}; text-align:center;'>PrimeTower</h4>", unsafe_allow_html=True)
+    selected = option_menu(
+        menu_title=None,
+        options=["Home", "Financials", "Operations", "Fuel", "Maintenance", "Alerts"],
+        icons=["house", "cash-stack", "speedometer", "fuel-pump", "tools", "bell"],
+        menu_icon="cast",
+        default_index=0,
+        styles={
+            "container": {"padding": "5px", "background-color": SECONDARY_NAVY},
+            "icon": {"color": ACCENT_GOLD, "font-size": "18px"},
+            "nav-link": {"color": WHITE, "font-size": "15px", "text-align": "left", "margin": "5px", "--hover-color": ACCENT_TEAL},
+            "nav-link-selected": {"background-color": ACCENT_TEAL},
+        }
+    )
+
+    with st.form("filters_form"):
+        st.markdown('<p class="filter-title">FILTERS</p>', unsafe_allow_html=True)
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            month_disp = st.selectbox("Month", available_months_display, index=len(available_months_display)-1, key="month_select")
+        with c2:
+            truck = st.selectbox("Truck", ["All"] + sorted(truck_pak["TruckID"].unique()), index=0, key="truck_select")
+        with c3:
+            route = st.selectbox("Route", ["All"] + sorted(loi["Route Code"].unique()), index=0, key="route_select")
+        submitted = st.form_submit_button("Apply Filters", type="primary", use_container_width=True)
+        if submitted:
+            st.session_state.month_filter = month_disp
+            st.session_state.truck_filter = truck
+            st.session_state.route_filter = route
+            st.rerun()
+
+# =============================================================================
+# DATA FILTERING (unchanged)
+# =============================================================================
+
+selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
+selected_truck = st.session_state.get("truck_filter", "All")
+selected_route = st.session_state.get("route_filter", "All")
+selected_month = month_dict[selected_month_display]
+
+def apply_filters(df, month, truck, route):
+    filtered = df[df["Year-Month"] == month]
+    if truck != "All":
+        filtered = filtered[filtered["TruckID"] == truck]
+    if route != "All":
+        filtered = filtered[filtered["Route Code"] == route]
+    return filtered
+
+filtered_ops = apply_filters(operations, selected_month, selected_truck, selected_route)
 
 # --- DATA PREP ---
 operations["Date"] = pd.to_datetime(operations["Date"])

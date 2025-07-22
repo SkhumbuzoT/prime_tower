@@ -116,7 +116,7 @@ def show_login():
 
 def authenticate(username, password):
     """Authenticate user"""
-    users = {"admin": "1234", "user1": "pass123"}  # In production, use proper auth
+    users = {"admin": "A1234", "user1": "pass123"}  # In production, use proper auth
     
     if username in users and users[username] == password:
         st.session_state.logged_in = True

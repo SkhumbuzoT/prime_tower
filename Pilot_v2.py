@@ -588,86 +588,294 @@ elif selected == "Maintenance":
         st.error(f"Error in Maintenance tab: {str(e)}")
 
 # -----------------------------------------------------------------------------
-# ALERTS TAB
 elif selected == "Alerts":
-    st.markdown(f"<h4 style='color: {ACCENT_TEAL};'>Actionable Alerts</h4>", unsafe_allow_html=True)
+    st.markdown("Actionable recommendations to optimize fleet performance")
+    
+    # Prepare data for insights with error handling
     try:
         cost_df = filtered_ops.copy()
+        # Ensure numeric columns are properly formatted
+        numeric_cols = ["Ton Reg", "Rate per ton", "Distance (km)", 
+                       "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
+                       "Tyres (R/km)", "Daily Fixed Cost (R/day)"]
+        
+        for col in numeric_cols:
+            if col in cost_df.columns:
+                cost_df[col] = pd.to_numeric(cost_df[col], errors='coerce').fillna(0)
+        
+        # Merge operations with error handling
         cost_df = cost_df.merge(loi[["Route Code", "Rate per ton"]], on="Route Code", how="left")
         cost_df = cost_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
         cost_df = cost_df.merge(tracker[["TruckID", "Distance (km)"]], on="TruckID", how="left")
-        cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", "Tyres (R/km)", "Daily Fixed Cost (R/day)"]], on="TruckID", how="left")
-        cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"]
+        cost_df = cost_df.merge(vcs[["TruckID", "Fuel Cost (R/km)", "Maintenance Cost (R/km)", 
+                                   "Tyres (R/km)", "Daily Fixed Cost (R/day)"]],
+                        on="TruckID", how="left")
+        
+        # Calculations with fallbacks
+        cost_df["Revenue (R)"] = cost_df["Ton Reg"] * cost_df["Rate per ton"].fillna(0)
         cost_df["Variable Cost (R)"] = cost_df["Distance (km)"] * (
-            cost_df["Fuel Cost (R/km)"] + cost_df["Maintenance Cost (R/km)"] + cost_df["Tyres (R/km)"]
+            cost_df["Fuel Cost (R/km)"].fillna(0) + 
+            cost_df["Maintenance Cost (R/km)"].fillna(0) + 
+            cost_df["Tyres (R/km)"].fillna(0)
         )
-        cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"]
+        cost_df["Total Cost (R)"] = cost_df["Variable Cost (R)"] + cost_df["Daily Fixed Cost (R/day)"].fillna(0)
         cost_df["Profit (R)"] = cost_df["Revenue (R)"] - cost_df["Total Cost (R)"]
+        
+        # Prepare fuel efficiency data
+        fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
+        fuel_df = fuel_df.merge(truck_pak[["TruckID", "Driver Name"]], on="TruckID", how="left")
+        fuel_df = fuel_df.merge(loi[["Route Code", "Distance (km)"]], on="Route Code", how="left")
+        
+        # Ensure numeric columns for fuel calculations
+        fuel_df["Ton Reg"] = pd.to_numeric(fuel_df["Ton Reg"], errors='coerce').fillna(0)
+        fuel_df["Distance (km)"] = pd.to_numeric(fuel_df["Distance (km)"], errors='coerce').fillna(0)
+        fuel_df["Fuel Efficiency (km/L)"] = np.where(
+            fuel_df["Ton Reg"] > 0,
+            fuel_df["Distance (km)"] / fuel_df["Ton Reg"],
+            0
+        )
+        
+    except Exception as e:
+        st.error(f"Error preparing data for analysis: {str(e)}")
+        cost_df = pd.DataFrame()
+        fuel_df = pd.DataFrame()
 
+    # Top Performers Section
+    with st.container():
+        st.markdown(f"""
+            <div style='text-align: center; margin-bottom: 20px;'>
+                <h2 style='color: {ACCENT_GOLD}; border-bottom: 2px solid {ACCENT_TEAL}; 
+                    display: inline-block; padding-bottom: 5px;'>🏆 Performance Dashboard</h2>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Top Performers Row
         st.markdown("### 🌟 Top Performers")
         col1, col2 = st.columns(2)
+        
+        # Most Profitable Truck Card
         with col1:
-            profitable_truck = cost_df.groupby(["TruckID", "Driver Name"])["Profit (R)"].sum().nlargest(1).reset_index()
-            if not profitable_truck.empty:
-                truck = profitable_truck.iloc[0]
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <h3>🚛 Most Profitable Truck</h3>
-                        <p>{truck['TruckID']} ({truck['Driver Name']})</p>
-                        <p style='font-size: 1.5rem; color: {ACCENT_TEAL};'>R{truck['Profit (R)']:,.2f}</p>
-                    </div>
-                """, unsafe_allow_html=True)
-
+            try:
+                if not cost_df.empty:
+                    profitable_truck = (
+                        cost_df.groupby(["TruckID", "Driver Name"])["Profit (R)"]
+                        .sum()
+                        .astype(float)
+                        .nlargest(1)
+                        .reset_index()
+                    )
+                    if not profitable_truck.empty:
+                        truck = profitable_truck.iloc[0]
+                        st.markdown(f"""
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid {ACCENT_TEAL};
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: {ACCENT_GOLD}; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>🚛</span>
+                                    </div>
+                                    <h4 style='color: {ACCENT_GOLD}; margin: 0;'>Most Profitable Truck</h4>
+                                </div>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Truck ID</p>
+                                <p style='font-size: 20px; margin-top: 0; margin-bottom: 15px;'><strong>{truck['TruckID']}</strong></p>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Driver</p>
+                                <p style='font-size: 18px; margin-top: 0; margin-bottom: 20px;'>{truck['Driver Name']}</p>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Total Profit</p>
+                                <p style='font-size: 28px; color: {ACCENT_TEAL}; margin: 0; font-weight: bold;'>R{truck['Profit (R)']:,.2f}</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.warning("No cost data available for analysis")
+            except Exception as e:
+                st.error(f"Error calculating profitable truck: {str(e)}")
+        
+        # Most Efficient Route Card
         with col2:
-            efficient_route = cost_df.groupby("Route Code")["Profit (R)"].mean().nlargest(1).reset_index()
-            if not efficient_route.empty:
-                route = efficient_route.iloc[0]
-                st.markdown(f"""
-                    <div class="metric-card">
-                        <h3>🛣️ Most Profitable Route</h3>
-                        <p>{route['Route Code']}</p>
-                        <p style='font-size: 1.5rem; color: {ACCENT_TEAL};'>R{route['Profit (R)']:,.2f}</p>
-                    </div>
-                """, unsafe_allow_html=True)
-
+            try:
+                if not cost_df.empty:
+                    efficient_route = (
+                        cost_df.groupby("Route Code")["Profit (R)"]
+                        .mean()
+                        .astype(float)
+                        .nlargest(1)
+                        .reset_index()
+                    )
+                    if not efficient_route.empty:
+                        route = efficient_route.iloc[0]
+                        st.markdown(f"""
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid {ACCENT_TEAL};
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: {ACCENT_GOLD}; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>🛣️</span>
+                                    </div>
+                                    <h4 style='color: {ACCENT_GOLD}; margin: 0;'>Most Profitable Route</h4>
+                                </div>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Route Code</p>
+                                <p style='font-size: 20px; margin-top: 0; margin-bottom: 20px;'><strong>{route['Route Code']}</strong></p>
+                                <p style='font-size: 16px; margin-bottom: 5px; color: #e0e0e0;'>Average Profit</p>
+                                <p style='font-size: 28px; color: {ACCENT_TEAL}; margin: 0; font-weight: bold;'>R{route['Profit (R)']:,.2f}</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.warning("No route data available for analysis")
+            except Exception as e:
+                st.error(f"Error calculating efficient route: {str(e)}")
+    
+    # Optimization Opportunities Section
+    with st.container():
         st.markdown("### ⚡ Optimization Opportunities")
-        fuel_df = filtered_ops[filtered_ops["Doc Type"] == "Fuel"].copy()
-        if "Distance (km)" in loi.columns:
-            fuel_df = fuel_df.merge(loi[["Route Code", "Distance (km)"]], on="Route Code", how="left")
-            fuel_df = fuel_df.rename(columns={"Distance (km)": "Distance"})
+        col1, col2 = st.columns(2)
+        
+        # Least Fuel-Efficient Trucks Card
+        with col1:
+            try:
+                if not fuel_df.empty:
+                    inefficient_trucks = (
+                        fuel_df.groupby(["TruckID", "Driver Name"])["Fuel Efficiency (km/L)"]
+                        .mean()
+                        .astype(float)
+                        .nsmallest(3)
+                        .reset_index()
+                    )
+                    if not inefficient_trucks.empty:
+                        st.markdown(f"""
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid #d32f2f;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: #d32f2f; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>⛽</span>
+                                    </div>
+                                    <h4 style='color: #d32f2f; margin: 0;'>Least Fuel-Efficient Trucks</h4>
+                                </div>
+                                <div style='margin-top: 20px;'>
+                                    <table style='width: 100%; border-collapse: collapse;'>
+                                        <thead>
+                                            <tr style='border-bottom: 1px solid #444;'>
+                                                <th style='text-align: left; padding: 8px 0; color: #e0e0e0;'>Truck</th>
+                                                <th style='text-align: left; padding: 8px 0; color: #e0e0e0;'>Driver</th>
+                                                <th style='text-align: right; padding: 8px 0; color: #e0e0e0;'>Efficiency</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                        """, unsafe_allow_html=True)
+                        
+                        for _, row in inefficient_trucks.iterrows():
+                            st.markdown(f"""
+                                <tr style='border-bottom: 1px solid #333;'>
+                                    <td style='padding: 8px 0;'><strong>{row['TruckID']}</strong></td>
+                                    <td style='padding: 8px 0;'>{row['Driver Name']}</td>
+                                    <td style='padding: 8px 0; text-align: right; color: #ff5252;'>{row['Fuel Efficiency (km/L)']:.2f} km/L</td>
+                                </tr>
+                            """, unsafe_allow_html=True)
+                        
+                        st.markdown("""
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.success("All trucks meet fuel efficiency standards")
+                else:
+                    st.warning("No fuel efficiency data available")
+            except Exception as e:
+                st.error(f"Error calculating inefficient trucks: {str(e)}")
+            
+        
+        # Loss-Making Routes Card
+        with col2:
+            try:
+                if not cost_df.empty:
+                    loss_routes = (
+                        cost_df.groupby("Route Code")["Profit (R)"]
+                        .sum()
+                        .astype(float)
+                        .nsmallest(3)
+                        .reset_index()
+                    )
+                    if not loss_routes.empty:
+                        st.markdown(f"""
+                            <div style='background-color: {SECONDARY_NAVY}; padding: 20px; 
+                                border-radius: 12px; border-left: 5px solid #d32f2f;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;'>
+                                <div style='display: flex; align-items: center; gap: 15px; margin-bottom: 15px;'>
+                                    <div style='background: #d32f2f; width: 50px; height: 50px; 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+                                        <span style='font-size: 24px;'>🔴</span>
+                                    </div>
+                                    <h4 style='color: #d32f2f; margin: 0;'>Top Loss-Making Routes</h4>
+                                </div>
+                                <div style='margin-top: 20px;'>
+                                    <table style='width: 100%; border-collapse: collapse;'>
+                                        <thead>
+                                            <tr style='border-bottom: 1px solid #444;'>
+                                                <th style='text-align: left; padding: 8px 0; color: #e0e0e0;'>Route Code</th>
+                                                <th style='text-align: right; padding: 8px 0; color: #e0e0e0;'>Total Loss</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                        """, unsafe_allow_html=True)
+                        
+                        for _, row in loss_routes.iterrows():
+                            st.markdown(f"""
+                                <tr style='border-bottom: 1px solid #333;'>
+                                    <td style='padding: 8px 0;'><strong>{row['Route Code']}</strong></td>
+                                    <td style='padding: 8px 0; text-align: right; color: #ff5252;'>R{abs(row['Profit (R)']):,.2f}</td>
+                                </tr>
+                            """, unsafe_allow_html=True)
+                        
+                        st.markdown("""
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.success("No loss-making routes found")
+                else:
+                    st.warning("No route data available for analysis")
+            except Exception as e:
+                st.error(f"Error calculating loss routes: {str(e)}")
+
+    # Pricing Recommendations Section
+    try:
+        if not cost_df.empty:
+            route_analysis = cost_df.groupby("Route Code").agg({
+                "Rate per ton": "mean",
+                "Profit (R)": "mean",
+                "Ton Reg": "sum"
+            }).reset_index()
+            
+            # Ensure numeric columns
+            route_analysis["Rate per ton"] = pd.to_numeric(route_analysis["Rate per ton"], errors='coerce').fillna(0)
+            route_analysis["Profit (R)"] = pd.to_numeric(route_analysis["Profit (R)"], errors='coerce').fillna(0)
+            route_analysis["Ton Reg"] = pd.to_numeric(route_analysis["Ton Reg"], errors='coerce').fillna(0)
+            
+            # Identify routes where profit is negative but volume is high
+            high_volume_low_profit = route_analysis[
+                (route_analysis["Profit (R)"] < 0) & 
+                (route_analysis["Ton Reg"] > route_analysis["Ton Reg"].quantile(0.75))
+            ]
+            
+            if not high_volume_low_profit.empty:
+                st.warning("The following high-volume routes are currently unprofitable. Consider rate adjustments:")
+                
+                for _, row in high_volume_low_profit.iterrows():
+                    current_rate = row["Rate per ton"]
+                    suggested_rate = current_rate * 1.15  # 15% increase
+                    st.markdown(f"""
+                        - **{row['Route Code']}**: Current rate R{current_rate:.2f}/ton → 
+                        Suggest R{suggested_rate:.2f}/ton (15% increase)
+                    """)
+            else:
+                st.success("No major pricing issues detected in high-volume routes")
         else:
-            fuel_df["Distance"] = 0
-        fuel_df["Fuel Efficiency (km/L)"] = fuel_df["Distance"] / fuel_df["Ton Reg"]
-        inefficient_trucks = fuel_df.groupby(["TruckID", "Driver Name"])["Fuel Efficiency (km/L)"].mean().nsmallest(3).reset_index()
-
-        if not inefficient_trucks.empty:
-            st.markdown(f"""
-                <div class="metric-card">
-                    <h3>⛽ Least Fuel-Efficient Trucks</h3>
-                    <table style='width: 100%; border-collapse: collapse;'>
-                        <tr style='border-bottom: 1px solid {ACCENT_TEAL};'>
-                            <th style='text-align: left; padding: 8px;'>Truck</th>
-                            <th style='text-align: left; padding: 8px;'>Driver</th>
-                            <th style='text-align: right; padding: 8px;'>Efficiency</th>
-                        </tr>
-                        {"".join([f"<tr><td style='padding: 8px;'>{row['TruckID']}</td><td style='padding: 8px;'>{row['Driver Name']}</td><td style='padding: 8px; text-align: right;'>{row['Fuel Efficiency (km/L)']:.2f} km/L</td></tr>" for _, row in inefficient_trucks.iterrows()])}
-                    </table>
-                </div>
-            """, unsafe_allow_html=True)
-
-        loss_routes = cost_df.groupby("Route Code")["Profit (R)"].sum().nsmallest(3).reset_index()
-        if not loss_routes.empty:
-            st.markdown(f"""
-                <div class="metric-card">
-                    <h3>🔴 Top Loss-Making Routes</h3>
-                    <table style='width: 100%; border-collapse: collapse;'>
-                        <tr style='border-bottom: 1px solid {ACCENT_TEAL};'>
-                            <th style='text-align: left; padding: 8px;'>Route</th>
-                            <th style='text-align: right; padding: 8px;'>Loss</th>
-                        </tr>
-                        {"".join([f"<tr><td style='padding: 8px;'>{row['Route Code']}</td><td style='padding: 8px; text-align: right;'>R{abs(row['Profit (R)']):,.2f}</td></tr>" for _, row in loss_routes.iterrows()])}
-                    </table>
-                </div>
-            """, unsafe_allow_html=True)
+            st.warning("No data available for pricing recommendations")
     except Exception as e:
-        st.error(f"Error in Alerts tab: {str(e)}")
+        st.error(f"Error generating pricing recommendations: {str(e)}")

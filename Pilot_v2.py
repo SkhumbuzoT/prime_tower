@@ -337,9 +337,14 @@ with st.sidebar:
 # =============================================================================
 
 selected_month_display = st.session_state.get("month_filter", available_months_display[-1])
-selected_truck         = st.session_state.get("truck_filter", "All")
-selected_route         = st.session_state.get("route_filter", "All")
-selected_month         = month_dict[selected_month_display]
+selected_month = month_dict.get(selected_month_display)
+
+selected_month_dt = pd.to_datetime(selected_month, errors="coerce")
+if pd.isna(selected_month_dt):
+    st.error("Invalid or missing month selection. Please select a valid month.")
+    st.stop()
+
+prev_month = (selected_month_dt - pd.DateOffset(months=1)).strftime("%Y-%m")
 
 def apply_filters(df, month, truck, route):
     filtered = df[df["Year-Month"] == month]
